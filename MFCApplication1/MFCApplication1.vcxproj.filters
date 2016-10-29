@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Tool">
+      <UniqueIdentifier>{89421079-018c-4ff7-b89c-b0051256f096}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tool\algorithms">
+      <UniqueIdentifier>{69a0eb9b-0ec3-4d20-915e-13a952eb6178}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tool\algorithms\wrap">
+      <UniqueIdentifier>{715b33bf-d228-4fb4-abcb-013d0202ce28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tool\base">
+      <UniqueIdentifier>{6af0cea0-f5b7-4445-bb05-c16b3c8698a1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -33,6 +45,45 @@
     <ClInclude Include="Resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Tool\algorithms\wrap\aes.h">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="Tool\algorithms\wrap\arcfour.h">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="Tool\algorithms\wrap\base64.h">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="Tool\algorithms\wrap\blowfish.h">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="Tool\algorithms\wrap\des.h">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="Tool\algorithms\wrap\md2.h">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="Tool\algorithms\wrap\md5.h">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="Tool\algorithms\wrap\rot-13.h">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="Tool\algorithms\wrap\rsa.h">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="Tool\algorithms\wrap\sha1.h">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="Tool\algorithms\wrap\sha256.h">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="Tool\algorithms\algorithms.h">
+      <Filter>Tool\algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="Tool\base\object.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MFCApplication1.cpp">
@@ -43,6 +94,45 @@
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Tool\algorithms\wrap\aes.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="Tool\algorithms\wrap\arcfour.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="Tool\algorithms\wrap\base64.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="Tool\algorithms\wrap\blowfish.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="Tool\algorithms\wrap\des.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="Tool\algorithms\wrap\md2.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="Tool\algorithms\wrap\md5.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="Tool\algorithms\wrap\rot-13.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="Tool\algorithms\wrap\rsa.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="Tool\algorithms\wrap\sha1.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="Tool\algorithms\wrap\sha256.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="Tool\algorithms\algorithms.cpp">
+      <Filter>Tool\algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="Tool\base\object.cpp">
+      <Filter>Tool\base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

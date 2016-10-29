@@ -10,7 +10,6 @@
 #define new DEBUG_NEW
 #endif
 
-
 // CMFCApplication1App
 
 BEGIN_MESSAGE_MAP(CMFCApplication1App, CWinApp)
@@ -33,8 +32,29 @@ CMFCApplication1App::CMFCApplication1App()
 // 唯一的一个 CMFCApplication1App 对象
 
 CMFCApplication1App theApp;
+HANDLE g_hStdOut = NULL;
 
+void NewConsole()
+{
+	AllocConsole();
+	g_hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+}
 
+#include <stdio.h>
+#include <stdarg.h>
+
+void PrintLog(char* pszLog,...)
+{
+	if (pszLog == NULL)
+		return;
+	char log[65525] = { 0 };
+	
+	va_list args;
+	va_start(args,pszLog);
+	vsprintf(log, pszLog, args);
+	va_end(pszLog);
+	WriteConsoleA(g_hStdOut, log, strlen(log), NULL, NULL);
+}
 // CMFCApplication1App 初始化
 
 BOOL CMFCApplication1App::InitInstance()
@@ -63,6 +83,10 @@ BOOL CMFCApplication1App::InitInstance()
 	// TODO:  应适当修改该字符串，
 	// 例如修改为公司或组织名
 	SetRegistryKey(_T("应用程序向导生成的本地应用程序"));
+
+	NewConsole();
+
+	PrintLog("I'm GLP\n");
 
 	CMFCApplication1Dlg dlg;
 	m_pMainWnd = &dlg;
