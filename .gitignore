@@ -30,3 +30,5 @@
 *.sdf
 *.v12.suo
 *.opensdf
+*.ncb
+*.suo
