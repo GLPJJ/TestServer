@@ -2,16 +2,13 @@
 #define GLP_OBJECT_H_
 
 #include "log.h"
-#include <string.h>
 #include <list>
+#include <new>
+#include <stdarg.h>
 
 /*
 内存池，顶级对象申明，
 */
-
-
-//干掉vc里面对new 的定义
-//#undef new
 
 namespace Tool{
 	class Mutex;
@@ -39,7 +36,7 @@ namespace Tool{
 	//本库基础对象继承Object
 	class Object{
 	private:
-		Object(const char* name=NULL);
+		Object(const char* name=0);
 		virtual ~Object();
 
 	public:
@@ -81,12 +78,13 @@ namespace Tool{
 //通用对象的 new_和delete_，可以不用继承Object
 #define new_(M_T,M_o,...) \
 	M_T* M_o = (M_T*)Tool::Allocator::GetInstance()->alloc(sizeof(M_T)); \
-	M_o = M_o == NULL ? NULL : new (M_o)M_T(__VA_ARGS__)
+	M_o = M_o == NULL ? NULL : new (M_o) M_T (__VA_ARGS__)
 
 #define delete_(M_T,M_o)\
 	if (M_o != NULL){\
 	M_o->~M_T();\
 	Tool::Allocator::GetInstance()->dealloc(M_o);\
+	M_o = NULL;\
 	}
 
 #endif//GLP_OBJECT_H_

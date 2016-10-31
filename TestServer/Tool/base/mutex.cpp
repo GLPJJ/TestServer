@@ -1,13 +1,8 @@
-﻿#include <stdio.h>
-#include <malloc.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdlib.h>
-#include "mutex.h"
+﻿#include "mutex.h"
 
 namespace Tool{
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 class CriticalSectionWindows : public Mutex {
 public:
@@ -43,17 +38,16 @@ public:
 private:
 	pthread_mutex_t mutex_;
 };
-#endif//WIN32
+#endif//_WIN32
 
 Mutex* Mutex::CreateCriticalSection() {
-#ifdef WIN32
+#ifdef _WIN32
 	new_(CriticalSectionWindows,p);
 	return (Mutex*)p;
 #else
 	new_(CriticalSectionPosix,p);
 	return (Mutex*)p;
-#endif
-	return NULL;
+#endif//_WIN32
 }
 
 }

@@ -2,14 +2,21 @@
 #include <stdio.h>
 
 #ifdef WIN32
+
 #include <Windows.h>
 extern HANDLE g_hStdOut;
+
+#else
+
+// For nanosleep()
+#include <time.h>
+
 #endif
 
 
 namespace Tool{
 
-#ifdef WIN32
+#ifdef _WIN32
 
 void Log(char* pszLog,...)
 {
@@ -39,7 +46,19 @@ void Log(char* pszLog,...)
 	printf(log);
 }
 
+#endif//_WIN32
+
+void SleepMs(int msecs) {
+#ifdef _WIN32
+	Sleep(msecs);
+#else
+	struct timespec short_wait;
+	struct timespec remainder;
+	short_wait.tv_sec = msecs / 1000;
+	short_wait.tv_nsec = (msecs % 1000) * 1000 * 1000;
+	nanosleep(&short_wait, &remainder);
 #endif
+}
 
 }
 

@@ -5,9 +5,10 @@
 #include "TestServer.h"
 #include "TestServerDlg.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
+//去他娘的DEBUG_NEW
+// #ifdef _DEBUG
+// #define new DEBUG_NEW
+// #endif
 
 
 // CTestServerApp
@@ -37,20 +38,19 @@ void NewConsole()
 	g_hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
 }
 
-// #include <stdio.h>
-// #include <stdarg.h>
 #include "Tool/Tool.h"
-//using namespace Tool;
+
+using namespace Tool;
 
 class TestCls{
 public:
 	int a;
 
 	TestCls():a(){
-		//Tool::Log("TestCls() , a=%d\n",a);
+		Log("TestCls() , a=%d\n",a);
 	}
 	~TestCls(){
-		//Tool::Log("~TestCls()\n");
+		Log("~TestCls()\n");
 	}
 };
 
@@ -59,10 +59,10 @@ public:
 	int a;
 
 	TestCls1(int a):a(a){
-		//Tool::Log("TestCls1() , a=%d\n",a);
+		Log("TestCls1() , a=%d\n",a);
 	}
 	~TestCls1(){
-		//Tool::Log("~TestCls1()\n");
+		Log("~TestCls1()\n");
 	}
 };
 
@@ -95,17 +95,17 @@ BOOL CTestServerApp::InitInstance()
 	
 	NewConsole();
 
-	//Tool::Log("I'm GLP\n");
+	Log("I'm GLP\n");
 
-	//TestCls* pT1 = (TestCls*)Tool::Allocator::GetInstance()->alloc(sizeof(TestCls));
+	TestCls* pT1 = (TestCls*)Tool::Allocator::GetInstance()->alloc(sizeof(TestCls));
 	//pT1->TestCls();//构造函数的使用不可以这样
-	//Tool::Log("***************** 1 *******************\n");
-// 	new_(TestCls,pT2);
-// 	new_(TestCls1,pT3,1);
-// 
-// 	delete_(TestCls,pT2);
-// 	delete_(TestCls1,pT3);
-	//Tool::Log("***************** 2 *******************\n");
+	Log("***************** 1 *******************\n");
+ 	new_(TestCls,pT2);
+  	new_(TestCls1,pT3,1);
+  
+  	delete_(TestCls,pT2);
+  	delete_(TestCls1,pT3);
+	Log("***************** 2 *******************\n");
 
 	CTestServerDlg dlg;
 	m_pMainWnd = &dlg;

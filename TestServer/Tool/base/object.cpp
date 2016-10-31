@@ -1,7 +1,8 @@
 #include "object.h"
+#include "mutex.h"
 #include <malloc.h>
 #include <assert.h>
-#include "mutex.h"
+#include <string.h>
 
 namespace Tool{
 
@@ -71,7 +72,7 @@ namespace Tool{
 	}
 
 	void Object::hosting(){
-		ObjectMgr::GetInstance()->addObj(this);
+		//ObjectMgr::GetInstance()->addObj(this);
 		release();
 	}
 

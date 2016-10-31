@@ -1,7 +1,10 @@
 #ifndef GLP_TOOL_H_
 #define GLP_TOOL_H_
 
+#include "base/log.h"
 #include "base/object.h"
+#include "base/mutex.h"
+#include "base/counter.h"
 
 namespace Tool{
 
