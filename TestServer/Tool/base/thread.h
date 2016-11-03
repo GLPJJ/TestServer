@@ -3,21 +3,18 @@
 // Note: The callback function is expected to return every 2 seconds or more
 // often.
 
-#ifndef THREAD_WRAPPER__H__
-#define THREAD_WRAPPER__H__
+#ifndef GLP_THREAD_H_
+#define GLP_THREAD_H_
 
-// #include "typedefs.h"
-// #include "event_wrapper.h"
+#include "base.h"
 
-// Object that will be passed by the spawned thread when it enters the callback
-// function.
-#define ThreadObj void*
+
+namespace Tool{
 
 // Callback function that the spawned thread will enter once spawned.
 // A return value of false is interpreted as that the function has no
 // more work to do and that the thread can be released.
 typedef bool(*ThreadRunFunction)(ThreadObj);
-
 typedef void(*ONTHREADSTART)(unsigned int threadid);
 typedef void(*ONTHREADEND)(unsigned int threadid);
 
@@ -29,11 +26,11 @@ enum ThreadPriority {
   kRealtimePriority = 5
 };
 
-class ThreadWrapper {
- public:
+class Thread {
+public:
   enum {kThreadMaxNameLength = 64};
-  ThreadWrapper():m_funStart(0),m_funEnd(0){}
-  virtual ~ThreadWrapper() {}
+  Thread():m_funStart(0),m_funEnd(0){}
+  virtual ~Thread() {}
 
   // Factory method. Constructor disabled.
   //
@@ -43,10 +40,11 @@ class ThreadWrapper {
   // prio        Thread priority. May require root/admin rights.
   // thread_name  NULL terminated thread name, will be visable in the Windows
   //             debugger.
-  static ThreadWrapper* CreateThread(ThreadRunFunction func,
+  static Thread* CreateThread(ThreadRunFunction func,
                                      ThreadObj obj,
                                      ThreadPriority prio = kNormalPriority,
                                      const char* thread_name = 0);
+  static void destroy(Thread* p);
 
   // Get the current thread's kernel thread ID.
   static unsigned int GetThreadId();
@@ -89,4 +87,6 @@ public:
 	ONTHREADEND    m_funEnd;
 };
 
-#endif  // THREAD_WRAPPER__H__
+}
+
+#endif  // GLP_THREAD_H_

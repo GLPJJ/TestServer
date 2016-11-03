@@ -1,51 +1,50 @@
-﻿#ifndef THREAD_POSIX__H__
-#define THREAD_POSIX__H__
+﻿#ifndef GLP_THREAD_POSIX_H_
+#define GLP_THREAD_POSIX_H_
 
 #include "config.h"
-#include "thread_wrapper.h"
-
+#include "thread.h"
 #include <pthread.h>
 
-class CriticalSectionWrapper;
-class EventWrapper;
+namespace Tool{
 
-int ConvertToSystemPriority(ThreadPriority priority, int min_prio,
-                            int max_prio);
+class Mutex;
+class Event;
 
-class ThreadPosix : public ThreadWrapper {
+int ConvertToSystemPriority(ThreadPriority priority, int min_prio,int max_prio);
+
+class ThreadPosix : public Thread 
+{
  public:
   static ThreadWrapper* Create(ThreadRunFunction func, ThreadObj obj,
                                ThreadPriority prio, const char* thread_name);
 
-  ThreadPosix(ThreadRunFunction func, ThreadObj obj, ThreadPriority prio,
-              const char* thread_name);
+  ThreadPosix(ThreadRunFunction func, ThreadObj obj, ThreadPriority prio,const char* thread_name);
   ~ThreadPosix();
 
   // From ThreadWrapper.
   virtual void SetNotAlive();
   virtual bool Start(unsigned int& id);
   // Not implemented on Mac.
-  virtual bool SetAffinity(const int* processor_numbers,
-                           unsigned int amount_of_processors);
+  virtual bool SetAffinity(const int* processor_numbers,unsigned int amount_of_processors);
   virtual bool Stop();
   virtual bool WaitFor(unsigned int ms=TOOL_EVENT_INFINITE);
   virtual bool Terminate(unsigned long ecode);
 
   void Run();
 
- private:
+private:
   int Construct();
 
- private:
+private:
   ThreadRunFunction   run_function_;
   ThreadObj           obj_;
 
   // Internal state.
-  CriticalSectionWrapper* crit_state_;  // Protects alive_ and dead_
+  Mutex* crit_state_;  // Protects alive_ and dead_
   bool                    alive_;
   bool                    dead_;
   ThreadPriority          prio_;
-  EventWrapper*           event_;
+  Event*           event_;
 
   // Zero-terminated thread name string.
   char                    name_[kThreadMaxNameLength];
@@ -59,4 +58,6 @@ class ThreadPosix : public ThreadWrapper {
   pthread_t               thread_;
 };
 
-#endif  // THREAD_POSIX__H__
+}
+
+#endif  // GLP_THREAD_POSIX_H_

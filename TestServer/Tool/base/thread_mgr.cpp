@@ -1,34 +1,30 @@
-﻿#include "ThreadMgr.h"
-#include "event_wrapper.h"
-#include "NUtility.h"
-#include "sleep.h"
+﻿#include "../Tool.h"
 
-CThreadMgr::CThreadMgr(void)
+namespace Tool{
+
+ThreadMgr::ThreadMgr(void)
 : m_bStop( false )
 ,m_pObjectCS(NULL)
 ,m_pObjectEvent(NULL)
 ,m_pObjectThread(NULL)
 {
-	m_pObjectCS = CriticalSectionWrapper::CreateCriticalSection();
-	m_pObjectEvent = EventWrapper::Create();
+	m_pObjectCS = Mutex::CreateCriticalSection();
+	m_pObjectEvent = Event::Create();
 }
 
-CThreadMgr::~CThreadMgr(void)
+ThreadMgr::~ThreadMgr(void)
 {
-	if(m_pObjectThread)
-		delete m_pObjectThread;
-	if(m_pObjectEvent)
-		delete m_pObjectEvent;
-	if(m_pObjectCS)
-		delete m_pObjectCS;
+	Thread::destroy(m_pObjectThread);
+	Event::destroy(m_pObjectEvent);
+	Mutex::destroy(m_pObjectCS);
 }
 
-bool CThreadMgr::CreateThread( ThreadPriority iPriority )
+bool ThreadMgr::CreateThread( ThreadPriority iPriority )
 {
 	if(m_pObjectThread)
 		return true;
 
-	m_pObjectThread = ThreadWrapper::CreateThread(ThreadProc,this,kNormalPriority,"Net Thread");
+	m_pObjectThread = Thread::CreateThread(ThreadProc,this,kNormalPriority,"Net Thread");
 	if(!m_pObjectThread)
 		return false;
 	unsigned int thread_id;
@@ -39,7 +35,7 @@ bool CThreadMgr::CreateThread( ThreadPriority iPriority )
 	return true;
 }
 
-bool CThreadMgr::ReleaseThread()
+bool ThreadMgr::ReleaseThread()
 {
 	m_bStop = true;
 	if(m_pObjectThread)
@@ -47,27 +43,27 @@ bool CThreadMgr::ReleaseThread()
 	return true;
 }
 
-void CThreadMgr::PostMessageOS( int id, void* pData )
+void ThreadMgr::PostMessageOS( int id, void* pData )
 {
 	_tMsg msg = { false, id, pData };
 	
 	{
-		CriticalSectionScoped lock(m_pObjectCS);
+		MutexScoped lock(m_pObjectCS);
 		m_lstMsg.push_back( msg );
 	}
 }
 
-bool CThreadMgr::SendMessageOS( int id, void* pData )
+bool ThreadMgr::SendMessageOS( int id, void* pData )
 {
 	_tMsg msg = { true, id, pData };
 
 	{
-		CriticalSectionScoped lock(m_pObjectCS);
+		MutexScoped lock(m_pObjectCS);
 		m_lstMsg.push_front( msg );
 	}
 	
 
-	if(m_pObjectEvent->Wait(UTIL_EVENT_INFINITE) == kEventSignaled)
+	if(m_pObjectEvent->Wait(TOOL_EVENT_INFINITE) == kEventSignaled)
 	{
 		return true;
 	}
@@ -75,18 +71,18 @@ bool CThreadMgr::SendMessageOS( int id, void* pData )
 	return false;
 }
 
-void CThreadMgr::ProcessIdle()
+void ThreadMgr::ProcessIdle()
 {
 	SleepMs(50);
 }
 
-bool CThreadMgr::ThreadProc(ThreadObj pData)
+bool ThreadMgr::ThreadProc(ThreadObj pData)
 {
-	CThreadMgr * pThis = static_cast<CThreadMgr *>(pData);
+	ThreadMgr * pThis = static_cast<ThreadMgr *>(pData);
 	return pThis->Run();
 }
 
-bool CThreadMgr::Run()
+bool ThreadMgr::Run()
 {
 	while ( !m_bStop )
 	{
@@ -94,7 +90,7 @@ bool CThreadMgr::Run()
 		_tMsg msg = { false, MSG_INVALID, 0 };
 		
 		{
-			CriticalSectionScoped lock(m_pObjectCS);
+			MutexScoped lock(m_pObjectCS);
 			bIsEmpty = m_lstMsg.empty();
 			if ( !bIsEmpty )
 			{
@@ -117,4 +113,6 @@ bool CThreadMgr::Run()
 	}
 
 	return false;//结束线程
+}
+
 }

@@ -1,19 +1,18 @@
-#ifndef EVENT_WIN_H__
-#define EVENT_WIN_H__
+#ifndef GLP_EVENT_WIN_H_
+#define GLP_EVENT_WIN_H_
 
 #include <windows.h>
+#include "event.h"
 
-#include "event_wrapper.h"
+namespace Tool{
 
-#include "typedefs.h"
-
-class EventWindows : public EventWrapper {
+class EventWindows : public Event {
  public:
   EventWindows();
   virtual ~EventWindows();
 
   //miro second
-  virtual EventTypeWrapper Wait(unsigned long max_time);
+  virtual EventType Wait(unsigned long max_time);
   virtual bool Set();
   virtual bool Reset();
 
@@ -22,7 +21,9 @@ class EventWindows : public EventWrapper {
 
  private:
   HANDLE  event_;
-  uint32_t timerID_;
+  unsigned int timerID_;
 };
 
-#endif  // EVENT_WIN_H__
+}
+
+#endif  // GLP_EVENT_WIN_H_

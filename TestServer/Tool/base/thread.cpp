@@ -1,74 +1,82 @@
-﻿#include "thread_wrapper.h"
-#include "mutex.h"
-#include "log.h"
+﻿#include "../Tool.h"
+#include <assert.h>
 
 #ifdef _WIN32
-#include <assert.h>
+#include "thread_win.h"
 #include <process.h>
 #include <stdio.h>
-#include <windows.h>
-#include "set_thread_name_win.h"
+#else
+#include "thread_posix.h"
 
-class ThreadWindows : public ThreadWrapper {
-public:
-	ThreadWindows(ThreadRunFunction func, ThreadObj obj, ThreadPriority prio,
-		const char* thread_name);
-	virtual ~ThreadWindows();
+#include <algorithm>
+#include <assert.h>
+#include <errno.h>
+#include <string.h>  // strncpy
+#include <unistd.h>
+#ifdef NETUTIL_LINUX
+#include <sys/types.h>
+#include <sched.h>
+#include <sys/syscall.h>
+#include <linux/unistd.h>
+#include <sys/prctl.h>
+#endif
 
-	virtual bool Start(unsigned int& id);
-	bool SetAffinity(const int* processor_numbers,
-		const unsigned int amount_of_processors);
-	virtual bool Stop();
-	virtual void SetNotAlive();
-	virtual bool WaitFor(unsigned int ms=TOOL_EVENT_INFINITE);
-	virtual bool Terminate(unsigned long ecode);
+#include "mutex.h"
+//#include "log.h"
+#endif
 
-	static unsigned int WINAPI StartThread(LPVOID lp_parameter);
+namespace Tool{
 
-protected:
-	virtual void Run();
+#ifdef _WIN32
 
-private:
-	ThreadRunFunction    run_function_;
-	ThreadObj            obj_;
-
-	bool                    alive_;
-	bool                    dead_;
-
-	// TODO(hellner)
-	// do_not_close_handle_ member seem pretty redundant. Should be able to remove
-	// it. Basically it should be fine to reclaim the handle when calling stop
-	// and in the destructor.
-	bool                    do_not_close_handle_;
-	ThreadPriority          prio_;
-	CriticalSectionWrapper* critsect_stop_;
-
-	HANDLE                  thread_;
-	unsigned int            id_;
-	char                    name_[kThreadMaxNameLength];
-	bool                    set_thread_name_;
-
+struct THREADNAME_INFO
+{
+	DWORD dwType;     // must be 0x1000
+	LPCSTR szName;    // pointer to name (in user addr space)
+	DWORD dwThreadID; // thread ID (-1 = caller thread)
+	DWORD dwFlags;    // reserved for future use, must be zero
 };
 
-ThreadWindows::ThreadWindows(ThreadRunFunction func, ThreadObj obj,
-							 ThreadPriority prio, const char* thread_name)
-							 : ThreadWrapper(),
-							 run_function_(func),
-							 obj_(obj),
-							 alive_(false),
-							 dead_(true),
-							 do_not_close_handle_(false),
-							 prio_(prio),
-							 thread_(NULL),
-							 id_(0),
-							 set_thread_name_(false) {
-								 name_[0] = 0;
-								 critsect_stop_ = CriticalSectionWrapper::CreateCriticalSection();
-								 if (thread_name != NULL) {
-									 // Set the thread name to appear in the VS debugger.
-									 set_thread_name_ = true;
-									 strncpy(name_, thread_name, kThreadMaxNameLength);
-								 }
+void SetThreadName(DWORD dwThreadID, LPCSTR szThreadName)
+{
+	THREADNAME_INFO info;
+	info.dwType = 0x1000;
+	info.szName = szThreadName;
+	info.dwThreadID = dwThreadID;
+	info.dwFlags = 0;
+
+	__try
+	{
+		RaiseException(0x406D1388, 0, sizeof(info) / sizeof(DWORD),
+			(ULONG_PTR*)&info);
+	}
+	__except (EXCEPTION_CONTINUE_EXECUTION)
+	{
+	}
+}
+
+unsigned int Thread::GetThreadId() {
+	return GetCurrentThreadId();
+}
+
+ThreadWindows::ThreadWindows(ThreadRunFunction func, ThreadObj obj,ThreadPriority prio, const char* thread_name)
+ : Thread(),
+ run_function_(func),
+ obj_(obj),
+ alive_(false),
+ dead_(true),
+ do_not_close_handle_(false),
+ prio_(prio),
+ thread_(NULL),
+ id_(0),
+ set_thread_name_(false) {
+	 name_[0] = 0;
+	 critsect_stop_ = Mutex::CreateCriticalSection();
+	 if (thread_name != NULL) {
+		 // Set the thread name to appear in the VS debugger.
+		 set_thread_name_ = true;
+		 strncpy(name_, thread_name, kThreadMaxNameLength);
+	 }
 }
 
 ThreadWindows::~ThreadWindows() {
@@ -81,10 +89,6 @@ ThreadWindows::~ThreadWindows() {
 	if (critsect_stop_) {
 		delete critsect_stop_;
 	}
-}
-
-uint32_t ThreadWrapper::GetThreadId() {
-	return GetCurrentThreadId();
 }
 
 unsigned int WINAPI ThreadWindows::StartThread(LPVOID lp_parameter) {
@@ -137,19 +141,17 @@ bool ThreadWindows::Start(unsigned int& thread_id) {
 	return true;
 }
 
-bool ThreadWindows::SetAffinity(const int* processor_numbers,
-								const unsigned int amount_of_processors) {
-									DWORD_PTR processor_bit_mask = 0;
-									for (unsigned int processor_index = 0;
-										processor_index < amount_of_processors;
-										++processor_index) {
-											// Convert from an array with processor numbers to a bitmask
-											// Processor numbers start at zero.
-											// TODO(hellner): this looks like a bug. Shouldn't the '=' be a '+='?
-											// Or even better |=
-											processor_bit_mask = 1 << processor_numbers[processor_index];
-									}
-									return SetThreadAffinityMask(thread_, processor_bit_mask) != 0;
+bool ThreadWindows::SetAffinity(const int* processor_numbers,const unsigned int amount_of_processors) {
+	DWORD_PTR processor_bit_mask = 0;
+	for (unsigned int processor_index = 0;processor_index < amount_of_processors
+		;++processor_index) {
+			// Convert from an array with processor numbers to a bitmask
+			// Processor numbers start at zero.
+			// TODO(hellner): this looks like a bug. Shouldn't the '=' be a '+='?
+			// Or even better |=
+			processor_bit_mask = 1 << processor_numbers[processor_index];
+	}
+	return SetThreadAffinityMask(thread_, processor_bit_mask) != 0;
 }
 
 void ThreadWindows::SetNotAlive() {
@@ -171,26 +173,26 @@ bool ThreadWindows::Terminate(unsigned long ecode)
 }
 
 bool ThreadWindows::Stop() {
-	critsect_stop_->Enter();
+	critsect_stop_->enter();
 
 	// Prevents the handle from being closed in ThreadWindows::Run()
 	do_not_close_handle_ = true;
 	alive_ = false;
 	bool signaled = false;
 	if (thread_ && !dead_) {
-		critsect_stop_->Leave();
+		critsect_stop_->leave();
 
 		// Wait up to 2 seconds for the thread to complete.
 		if (WAIT_OBJECT_0 == WaitForSingleObject(thread_, 2000)) {
 			signaled = true;
 		}
-		critsect_stop_->Enter();
+		critsect_stop_->enter();
 	}
 	if (thread_) {
 		CloseHandle(thread_);
 		thread_ = NULL;
 	}
-	critsect_stop_->Leave();
+	critsect_stop_->leave();
 
 	if (dead_ || signaled) {
 		return true;
@@ -237,7 +239,7 @@ void ThreadWindows::Run() {
 		//WEBRTC_TRACE(kTraceStateInfo, kTraceUtility, id_,"Thread without name stopped");
 	}
 
-	critsect_stop_->Enter();
+	critsect_stop_->enter();
 
 	if (thread_ && !do_not_close_handle_) {
 		HANDLE thread = thread_;
@@ -245,101 +247,31 @@ void ThreadWindows::Run() {
 		CloseHandle(thread);
 	}
 	dead_ = true;
-
-	critsect_stop_->Leave();
+	critsect_stop_->leave();
 };
 #else 
-#include <algorithm>
 
-#include <assert.h>
-#include <errno.h>
-#include <string.h>  // strncpy
-#include <unistd.h>
-#ifdef NETUTIL_LINUX
-#include <sys/types.h>
-#include <sched.h>
-#include <sys/syscall.h>
-#include <linux/unistd.h>
-#include <sys/prctl.h>
-#endif
+int ConvertToSystemPriority(ThreadPriority priority, int min_prio,int max_prio) {
+	assert(max_prio - min_prio > 2);
+	const int top_prio = max_prio - 1;
+	const int low_prio = min_prio + 1;
 
-#include <pthread.h>
-
-class CriticalSectionWrapper;
-class EventWrapper;
-
-int ConvertToSystemPriority(ThreadPriority priority, int min_prio,
-							int max_prio);
-
-class ThreadPosix : public ThreadWrapper {
-public:
-	static ThreadWrapper* Create(ThreadRunFunction func, ThreadObj obj,
-		ThreadPriority prio, const char* thread_name);
-
-	ThreadPosix(ThreadRunFunction func, ThreadObj obj, ThreadPriority prio,
-		const char* thread_name);
-	~ThreadPosix();
-
-	// From ThreadWrapper.
-	virtual void SetNotAlive();
-	virtual bool Start(unsigned int& id);
-	// Not implemented on Mac.
-	virtual bool SetAffinity(const int* processor_numbers,
-		unsigned int amount_of_processors);
-	virtual bool Stop();
-	virtual bool WaitFor(unsigned int ms=TOOL_EVENT_INFINITE);
-	virtual bool Terminate(unsigned long ecode);
-
-	void Run();
-
-private:
-	int Construct();
-
-private:
-	ThreadRunFunction   run_function_;
-	ThreadObj           obj_;
-
-	// Internal state.
-	CriticalSectionWrapper* crit_state_;  // Protects alive_ and dead_
-	bool                    alive_;
-	bool                    dead_;
-	ThreadPriority          prio_;
-	EventWrapper*           event_;
-
-	// Zero-terminated thread name string.
-	char                    name_[kThreadMaxNameLength];
-	bool                    set_thread_name_;
-
-	// Handle to thread.
-#if (defined(NETUTIL_LINUX) || defined(NETUTIL_ANDROID))
-	pid_t                   pid_;
-#endif
-	pthread_attr_t          attr_;
-	pthread_t               thread_;
-};
-
-int ConvertToSystemPriority(ThreadPriority priority, int min_prio,
-							int max_prio) {
-								assert(max_prio - min_prio > 2);
-								const int top_prio = max_prio - 1;
-								const int low_prio = min_prio + 1;
-
-								switch (priority) {
-	case kLowPriority:
-		return low_prio;
-	case kNormalPriority:
-		// The -1 ensures that the kHighPriority is always greater or equal to
-		// kNormalPriority.
-		return (low_prio + top_prio - 1) / 2;
-	case kHighPriority:
-		return std::max(top_prio - 2, low_prio);
-	case kHighestPriority:
-		return std::max(top_prio - 1, low_prio);
-	case kRealtimePriority:
-		return top_prio;
-								}
-								assert(false);
-								return low_prio;
+	switch (priority) {
+		case kLowPriority:
+			return low_prio;
+		case kNormalPriority:
+			// The -1 ensures that the kHighPriority is always greater or equal to
+			// kNormalPriority.
+			return (low_prio + top_prio - 1) / 2;
+		case kHighPriority:
+			return std::max(top_prio - 2, low_prio);
+		case kHighestPriority:
+			return std::max(top_prio - 1, low_prio);
+		case kRealtimePriority:
+			return top_prio;
+	}
+	assert(false);
+	return low_prio;
 }
 
 extern "C"
@@ -362,45 +294,21 @@ extern "C"
 	}
 }
 
-ThreadWrapper* ThreadPosix::Create(ThreadRunFunction func, ThreadObj obj,
-								   ThreadPriority prio,
-								   const char* thread_name) {
-									   ThreadPosix* ptr = new ThreadPosix(func, obj, prio, thread_name);
-									   if (!ptr) {
-										   return NULL;
-									   }
-									   const int error = ptr->Construct();
-									   if (error) {
-										   delete ptr;
-										   return NULL;
-									   }
-									   return ptr;
+Thread* ThreadPosix::Create(ThreadRunFunction func, ThreadObj obj,ThreadPriority prio,const char* thread_name) 
+{
+	ThreadPosix* ptr = new ThreadPosix(func, obj, prio, thread_name);
+	if (!ptr) {
+	   return NULL;
+	}
+	const int error = ptr->Construct();
+	if (error) {
+	   delete ptr;
+	   return NULL;
+	}
+	return ptr;
 }
 
-ThreadPosix::ThreadPosix(ThreadRunFunction func, ThreadObj obj,
-						 ThreadPriority prio, const char* thread_name)
-						 : run_function_(func),
-						 obj_(obj),
-						 crit_state_(CriticalSectionWrapper::CreateCriticalSection()),
-						 alive_(false),
-						 dead_(true),
-						 prio_(prio),
-						 event_(EventWrapper::Create()),
-						 name_(),
-						 set_thread_name_(false),
-#if (defined(NETUTIL_LINUX) || defined(NETUTIL_ANDROID))
-						 pid_(-1),
-#endif
-						 attr_(),
-						 thread_(0) {
-							 if (thread_name != NULL) {
-								 set_thread_name_ = true;
-								 strncpy(name_, thread_name, kThreadMaxNameLength);
-								 name_[kThreadMaxNameLength - 1] = '\0';
-							 }
-}
-
-unsigned int ThreadWrapper::GetThreadId() {
+unsigned int Thread::GetThreadId() {
 #if defined(NETUTIL_ANDROID) || defined(NETUTIL_LINUX)
 	return static_cast<unsigned int>(syscall(__NR_gettid));
 #elif defined(NETUTIL_MAC) || defined(NETUTIL_IOS)
@@ -408,6 +316,30 @@ unsigned int ThreadWrapper::GetThreadId() {
 #else
 	return reinterpret_cast<unsigned int>(pthread_self());
 #endif
+}
+
+ThreadPosix::ThreadPosix(ThreadRunFunction func, ThreadObj obj,
+						 ThreadPriority prio, const char* thread_name)
+ : run_function_(func),
+ obj_(obj),
+ crit_state_(Mutex::CreateCriticalSection()),
+ alive_(false),
+ dead_(true),
+ prio_(prio),
+ event_(Event::Create()),
+ name_(),
+ set_thread_name_(false),
+#if (defined(NETUTIL_LINUX) || defined(NETUTIL_ANDROID))
+ pid_(-1),
+#endif
+ attr_(),
+ thread_(0)
+{
+	 if (thread_name != NULL) {
+		 set_thread_name_ = true;
+		 strncpy(name_, thread_name, kThreadMaxNameLength);
+		 name_[kThreadMaxNameLength - 1] = '\0';
+	 }
 }
 
 int ThreadPosix::Construct() {
@@ -499,34 +431,29 @@ bool ThreadPosix::Start(unsigned int& thread_id)
 // SetAffinity on Android for now.
 #if (defined(NETUTIL_LINUX) && (!defined(NETUTIL_ANDROID)))
 bool ThreadPosix::SetAffinity(const int* processor_numbers,
-							  const unsigned int amount_of_processors) {
-								  if (!processor_numbers || (amount_of_processors == 0)) {
-									  return false;
-								  }
-								  cpu_set_t mask;
-								  CPU_ZERO(&mask);
+							  const unsigned int amount_of_processors) 
+{
+	  if (!processor_numbers || (amount_of_processors == 0)) {
+		  return false;
+	  }
 
-								  for (unsigned int processor = 0;
-									  processor < amount_of_processors;
-									  ++processor) {
-										  CPU_SET(processor_numbers[processor], &mask);
-								  }
+	  cpu_set_t mask;
+	  CPU_ZERO(&mask);
+
+	  for (unsigned int processor = 0;processor < amount_of_processors;++processor) {
+			  CPU_SET(processor_numbers[processor], &mask);
+	  }
 #if defined(NETUTIL_ANDROID)
-								  // Android.
-								  const int result = syscall(__NR_sched_setaffinity,
-									  pid_,
-									  sizeof(mask),
-									  &mask);
+	  // Android.
+	  const int result = syscall(__NR_sched_setaffinity,pid_,sizeof(mask),&mask);
 #else
-								  // "Normal" Linux.
-								  const int result = sched_setaffinity(pid_,
-									  sizeof(mask),
-									  &mask);
+	  // "Normal" Linux.
+	  const int result = sched_setaffinity(pid_,sizeof(mask),&mask);
 #endif
-								  if (result != 0) {
-									  return false;
-								  }
-								  return true;
+	  if (result != 0) {
+		  return false;
+	  }
+	  return true;
 }
 
 #else
@@ -639,14 +566,19 @@ void ThreadPosix::Run() {
 }
 #endif
 
-ThreadWrapper* ThreadWrapper::CreateThread(ThreadRunFunction func,
+Thread* Thread::CreateThread(ThreadRunFunction func,
                                            ThreadObj obj, ThreadPriority prio,
                                            const char* thread_name) 
 {
-#if defined(_WIN32)
-  return new ThreadWindows(func, obj, prio, thread_name);
+#ifdef _WIN32
+	return new ThreadWindows(func, obj, prio, thread_name);
 #else
-  return ThreadPosix::Create(func, obj, prio, thread_name);
+	return ThreadPosix::Create(func, obj, prio, thread_name);
 #endif
 }
 
+void Thread::destroy(Thread* p){
+	delete_(Thread,p);
+}
+
+}

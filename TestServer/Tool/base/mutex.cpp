@@ -50,4 +50,8 @@ Mutex* Mutex::CreateCriticalSection() {
 #endif//_WIN32
 }
 
+void Mutex::destroy(Mutex* p){
+	delete_(Mutex,p);
+}
+
 }

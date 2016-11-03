@@ -1,25 +1,26 @@
-﻿#ifndef EVENT_POSIX__H__
-#define EVENT_POSIX__H__
+﻿#ifndef GLP_EVENT_POSIX_H_
+#define GLP_EVENT_POSIX_H_
 
-#include "event_wrapper.h"
-
+#include "event.h"
 #include <pthread.h>
 #include <time.h>
 
 #include "thread_wrapper.h"
+
+namespace Tool{
 
 enum State {
   kUp = 1,
   kDown = 2
 };
 
-class EventPosix : public EventWrapper {
+class EventPosix : public Event {
  public:
-  static EventWrapper* Create();
+  static Event* Create();
 
   virtual ~EventPosix();
 
-  virtual EventTypeWrapper Wait(unsigned long max_time);
+  virtual EventType Wait(unsigned long max_time);
   virtual bool Set();
   virtual bool Reset();
 
@@ -32,7 +33,7 @@ class EventPosix : public EventWrapper {
 
   static bool Run(ThreadObj obj);
   bool Process();
-  EventTypeWrapper Wait(timespec& wake_at);
+  EventType Wait(timespec& wake_at);
 
  private:
   pthread_cond_t  cond_;
@@ -48,4 +49,6 @@ class EventPosix : public EventWrapper {
   State         state_;
 };
 
-#endif  // EVENT_POSIX__H__
+}
+
+#endif  // GLP_EVENT_POSIX_H_

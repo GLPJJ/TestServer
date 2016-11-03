@@ -5,6 +5,9 @@
 #include "base/object.h"
 #include "base/mutex.h"
 #include "base/counter.h"
+#include "base/event.h"
+#include "base/thread.h"
+#include "base/thread_mgr.h"
 
 namespace Tool{
 

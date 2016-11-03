@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -126,7 +126,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="false"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
@@ -565,6 +565,14 @@
 				Name="base"
 				>
 				<File
+					RelativePath=".\Tool\base\base.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Tool\base\config.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Tool\base\counter.cpp"
 					>
 					<FileConfiguration
@@ -583,6 +591,18 @@
 				<File
 					RelativePath=".\Tool\base\event.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Tool\base\event.h"
+					>
 				</File>
 				<File
 					RelativePath=".\Tool\base\event_posix.h"
@@ -590,10 +610,6 @@
 				</File>
 				<File
 					RelativePath=".\Tool\base\event_win.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Tool\base\event_wrapper.h"
 					>
 				</File>
 				<File
@@ -671,6 +687,34 @@
 				<File
 					RelativePath=".\Tool\base\thread.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Tool\base\thread.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Tool\base\thread_mgr.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Tool\base\thread_mgr.h"
+					>
 				</File>
 				<File
 					RelativePath=".\Tool\base\thread_posix.h"
@@ -678,18 +722,6 @@
 				</File>
 				<File
 					RelativePath=".\Tool\base\thread_win.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Tool\base\thread_wrapper.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Tool\base\ThreadMgr.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Tool\base\ThreadMgr.h"
 					>
 				</File>
 			</Filter>

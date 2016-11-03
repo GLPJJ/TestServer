@@ -27,8 +27,10 @@ void Log(char* pszLog,...)
 	va_list args;
 	va_start(args,pszLog);
 	vsprintf(log, pszLog, args);
+	if(g_hStdOut != NULL)
+		WriteConsoleA(g_hStdOut, log, strlen(log), NULL, NULL);
+	OutputDebugStringA(log);
 	va_end(pszLog);
-	WriteConsoleA(g_hStdOut, log, strlen(log), NULL, NULL);
 }
 
 #else

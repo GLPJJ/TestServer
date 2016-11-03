@@ -1,9 +1,10 @@
 ﻿#include "config.h"
-#include "event_wrapper.h"
+#include "../Tool.h"
 
 #if defined(_WIN32)
 #include <windows.h>
 #include "event_win.h"
+#include "Mmsystem.h"
 #pragma comment(lib,"winmm.lib")
 #elif defined(NETUTIL_MAC) && !defined(NETUTIL_IOS)
 #include <ApplicationServices/ApplicationServices.h>
@@ -14,8 +15,10 @@
 #include "event_posix.h"
 #endif
 
+namespace Tool{
+
 #ifdef _WIN32
-#include "Mmsystem.h"
+
 EventWindows::EventWindows()
 : event_(::CreateEvent(NULL,    // security attributes
 		 FALSE,   // manual reset
@@ -37,7 +40,7 @@ bool EventWindows::Reset() {
 	return ResetEvent(event_) == 1 ? true : false;
 }
 
-EventTypeWrapper EventWindows::Wait(unsigned long max_time) {
+EventType EventWindows::Wait(unsigned long max_time) {
 	unsigned long res = WaitForSingleObject(event_, max_time);
 	switch (res) {
 	case WAIT_OBJECT_0:
@@ -88,8 +91,9 @@ bool EventWindows::StopTimer() {
 const long int E6 = 1000000;
 const long int E9 = 1000 * E6;
 
-EventWrapper* EventPosix::Create() {
-	EventPosix* ptr = new EventPosix;
+Event* EventPosix::Create() {
+	new_(EventPosix,ptr);
+	//EventPosix* ptr = new EventPosix;
 	if (!ptr) {
 		return NULL;
 	}
@@ -99,7 +103,7 @@ EventWrapper* EventPosix::Create() {
 		delete ptr;
 		return NULL;
 	}
-	return ptr;
+	return (Event*)ptr;
 }
 
 EventPosix::EventPosix()
@@ -172,7 +176,7 @@ bool EventPosix::Set() {
 	return true;
 }
 
-EventTypeWrapper EventPosix::Wait(unsigned long timeout) {
+EventType EventPosix::Wait(unsigned long timeout) {
 	int ret_val = 0;
 	if (0 != pthread_mutex_lock(&mutex_)) {
 		return kEventError;
@@ -347,9 +351,16 @@ bool EventPosix::StopTimer() {
 #endif
 
 Event* Event::Create() {
-#if defined(_WIN32)
-  return new EventWindows();
+#ifdef _WIN32
+	new_(EventWindows,p);
+	return (Event*)p;
 #else
   return EventPosix::Create();
 #endif
+}
+
+void Event::destroy(Event* p){
+	delete_(Event,p)
+}
+
 }

@@ -9,11 +9,13 @@
 */
 //#define _STLP_OUTERMOST_HEADER_ID 0x40
 #include <list>
-#include "thread_wrapper.h"
+#include "thread.h"
 
-class EventWrapper;
-class ThreadWrapper;
-class CriticalSectionWrapper;
+namespace Tool{
+
+class Event;
+class Thread;
+class Mutex;
 
 enum
 {
@@ -27,13 +29,11 @@ struct _tMsg//定义消息结构
 	void*	pData;
 };
 
-class CThreadMgr
+class ThreadMgr
 {
 public:
-	CThreadMgr(void);
-	virtual ~CThreadMgr(void);
-
-public:
+	ThreadMgr(void);
+	virtual ~ThreadMgr(void);
 
 public:
 //创建线程，指定优先级
@@ -55,12 +55,13 @@ protected:
 	static bool ThreadProc(ThreadObj pData);
 
 protected:
-	volatile bool						m_bStop;
+	volatile bool			m_bStop;
 private:
-	ThreadWrapper*					m_pObjectThread;
-	EventWrapper*					m_pObjectEvent;
-	CriticalSectionWrapper*	m_pObjectCS;
-	
-	std::list<_tMsg>					m_lstMsg;
+	Thread*				m_pObjectThread;
+	Event*					m_pObjectEvent;
+	Mutex*					m_pObjectCS;
+	std::list<_tMsg>	m_lstMsg;
 };
+
+}
 #endif//THREADMGR__H__
