@@ -96,12 +96,12 @@ unsigned int WINAPI ThreadWindows::StartThread(LPVOID lp_parameter) {
 	if(!pThread)
 		return 0;
 	if(pThread->m_funStart)
-		pThread->m_funStart((unsigned int)pThread);
+		pThread->m_funStart((TPOINTER)pThread);
 	//线程运行
 	pThread->Run();
 
 	if(pThread->m_funEnd)
-		pThread->m_funEnd((unsigned int)pThread);
+		pThread->m_funEnd((TPOINTER)pThread);
 	return 0;
 }
 

@@ -1,10 +1,12 @@
-﻿#include "Timer.h"
+﻿#include "../Tool.h"
 #include <stdlib.h>
+
+namespace Tool{
 
 ///////////////////////////////////////////////////////////////////////////////
 // constructor
 ///////////////////////////////////////////////////////////////////////////////
-COS_Timer::COS_Timer()
+Timer::Timer()
 {
 #ifdef WIN32
 	QueryPerformanceFrequency(&frequency);
@@ -30,7 +32,7 @@ COS_Timer::COS_Timer()
 ///////////////////////////////////////////////////////////////////////////////
 // distructor
 ///////////////////////////////////////////////////////////////////////////////
-COS_Timer::~COS_Timer()
+Timer::~Timer()
 {
 }
 
@@ -40,7 +42,7 @@ COS_Timer::~COS_Timer()
 // start timer.
 // startCount will be set at this point.
 ///////////////////////////////////////////////////////////////////////////////
-void COS_Timer::start()
+void Timer::start()
 {
 	stopped = 0; // reset stop flag
 #ifdef WIN32
@@ -50,7 +52,7 @@ void COS_Timer::start()
 #endif
 }
 
-void COS_Timer::start2()
+void Timer::start2()
 {
 	start();
 #ifdef WIN32
@@ -65,7 +67,7 @@ void COS_Timer::start2()
 // stop the timer.
 // endCount will be set at this point.
 ///////////////////////////////////////////////////////////////////////////////
-void COS_Timer::stop()
+void Timer::stop()
 {
 	stopped = 1; // set timer stopped flag
 
@@ -76,7 +78,7 @@ void COS_Timer::stop()
 #endif
 }
 
-void COS_Timer::stop2()
+void Timer::stop2()
 {
 	stop();
 #ifdef WIN32
@@ -86,12 +88,12 @@ void COS_Timer::stop2()
 #endif
 }
 
-double COS_Timer::getLastElapsedTimerInMilliSec()
+double Timer::getLastElapsedTimerInMilliSec()
 {
 	return this->getLastElapsedTimeInMicroSec() * 0.001;
 }
 
-double COS_Timer::getLastElapsedTimeInMicroSec()
+double Timer::getLastElapsedTimeInMicroSec()
 {
 #ifdef WIN32
 	if(!stopped)
@@ -115,7 +117,7 @@ double COS_Timer::getLastElapsedTimeInMicroSec()
 // compute elapsed time in micro-second resolution.
 // other getElapsedTime will call this first, then convert to correspond resolution.
 ///////////////////////////////////////////////////////////////////////////////
-double COS_Timer::getElapsedTimeInMicroSec()
+double Timer::getElapsedTimeInMicroSec()
 {
 #ifdef WIN32
 	if(!stopped)
@@ -134,32 +136,28 @@ double COS_Timer::getElapsedTimeInMicroSec()
 	return endTimeInMicroSec - startTimeInMicroSec;
 }
 
-
-
 ///////////////////////////////////////////////////////////////////////////////
 // divide elapsedTimeInMicroSec by 1000
 ///////////////////////////////////////////////////////////////////////////////
-double COS_Timer::getElapsedTimeInMilliSec()
+double Timer::getElapsedTimeInMilliSec()
 {
 	return this->getElapsedTimeInMicroSec() * 0.001;
 }
 
-
-
 ///////////////////////////////////////////////////////////////////////////////
 // divide elapsedTimeInMicroSec by 1000000
 ///////////////////////////////////////////////////////////////////////////////
-double COS_Timer::getElapsedTimeInSec()
+double Timer::getElapsedTimeInSec()
 {
 	return this->getElapsedTimeInMicroSec() * 0.000001;
 }
 
-
-
 ///////////////////////////////////////////////////////////////////////////////
 // same as getElapsedTimeInSec()
 ///////////////////////////////////////////////////////////////////////////////
-double COS_Timer::getElapsedTime()
+double Timer::getElapsedTime()
 {
 	return this->getElapsedTimeInSec();
 }
+
+};

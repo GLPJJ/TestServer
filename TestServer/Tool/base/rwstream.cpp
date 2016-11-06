@@ -1,19 +1,13 @@
-#include "RWStream.h"
+#include "../Tool.h"
 #include <math.h>
 
-#include "config.h"
-#ifndef NETUTIL_ANDROID
-#define LOGI printf
-#define LOGE printf
-#endif
-
 #ifdef WIN32
-	#include <WinSock2.h>
+//#include <WinSock2.h>
 #else
-	#include "unistd.h"
-	#include "sys/socket.h"
-	#include "arpa/inet.h"
-	#include "netinet/in.h"
+#include "unistd.h"
+#include "sys/socket.h"
+#include "arpa/inet.h"
+#include "netinet/in.h"
 #endif
 
 #ifndef max
@@ -23,13 +17,13 @@
 #define min(a,b) (((a)>(b))?(b):(a))
 #endif//min
 
-namespace NetworkUtil
+namespace Tool
 {
-////////////////////////////////read operation//////////////////////////////////////////
+	////////////////////////////////read operation//////////////////////////////////////////
 	bool ReadStream::Read(/* out */ int & i)
 	{
 		static const int VALUE_SIZE = sizeof(int);
-        LOGI("%s short = %d\n",__FUNCTION__,VALUE_SIZE);
+		LOGI("%s short = %d\n",__FUNCTION__,VALUE_SIZE);
 
 		if(!readCom(&i,sizeof(i),NULL))
 			return false;
@@ -40,7 +34,7 @@ namespace NetworkUtil
 	bool ReadStream::Read(/* out */ short & i)
 	{
 		static const int VALUE_SIZE = sizeof(short);
-        LOGI("%s short = %d\n",__FUNCTION__,VALUE_SIZE);
+		LOGI("%s short = %d\n",__FUNCTION__,VALUE_SIZE);
 
 		if(!readCom(&i,sizeof(i),NULL))
 			return false;
@@ -51,7 +45,7 @@ namespace NetworkUtil
 	bool ReadStream::Read(/* out */ char & c)
 	{
 		static const int VALUE_SIZE = sizeof(char);
-        LOGI("%s short = %d\n",__FUNCTION__,VALUE_SIZE);
+		LOGI("%s short = %d\n",__FUNCTION__,VALUE_SIZE);
 
 		if(!readCom(&c,sizeof(c),NULL))
 			return false;
@@ -63,7 +57,7 @@ namespace NetworkUtil
 		if ( !readLengthWithoutOffset(outlen) )
 			return false;
 
-		// åç§»åˆ°æ•°æ®çš„ä½ç½®
+		// Æ«ÒÆµ½Êý¾ÝµÄÎ»ÖÃ
 		return skip((int)htype,false);
 	}
 	bool ReadStream::readLengthWithoutOffset(unsigned int & outlen)
@@ -113,7 +107,7 @@ namespace NetworkUtil
 			return false;
 
 		unsigned int fieldlen;
-		//è¯»å–å­—ç¬¦ä¸²é•¿åº¦ï¼Œæ ¹æ®åè®®æ•°æ®é•¿åº¦ç±»åž‹ã€‚
+		//¶ÁÈ¡×Ö·û´®³¤¶È£¬¸ù¾ÝÐ­ÒéÊý¾Ý³¤¶ÈÀàÐÍ¡£
 		if ( !readLength(fieldlen) ) {
 			return false;
 		}
@@ -137,14 +131,14 @@ namespace NetworkUtil
 
 	bool BinaryReadStream::readCom(/*out*/void* buffer,/*in*/unsigned int len_to_read,/*out*/unsigned int* len_readed)
 	{
-		//ä¸è¯»å–æ•°æ®ï¼Œæˆ–è€…bufferä¸ºç©º
+		//²»¶ÁÈ¡Êý¾Ý£¬»òÕßbufferÎª¿Õ
 		if(!buffer||!len_to_read)
 		{
 			if(len_readed)
 				*len_readed = 0;
 			return true;
 		}
-		//æ²¡æœ‰é‚£ä¹ˆå¤šæ•°æ®è¯»å–
+		//Ã»ÓÐÄÇÃ´¶àÊý¾Ý¶ÁÈ¡
 		if(cur+len_to_read > end)
 		{
 			unsigned int len = end-cur;
@@ -154,7 +148,7 @@ namespace NetworkUtil
 				*len_readed = len;
 			return false;
 		}
-		
+
 		memcpy(buffer,cur,len_to_read);
 		if(len_readed)
 			*len_readed = len_to_read;
@@ -169,9 +163,9 @@ namespace NetworkUtil
 			cur += offset;
 		return true;
 	}
-////////////////////////////////write operation//////////////////////////////////////////
+	////////////////////////////////write operation//////////////////////////////////////////
 	BinaryWriteStream::BinaryWriteStream(char* ptr_, unsigned int len_,PACKAGELEN_TYPE htype_)
-	:WriteStream(htype_), start(ptr_), len(len_), cur(ptr_),end(ptr_+len_)
+		:WriteStream(htype_), start(ptr_), len(len_), cur(ptr_),end(ptr_+len_)
 	{
 		skip((int)htype,false);
 	}
@@ -193,7 +187,7 @@ namespace NetworkUtil
 		if(net)
 			i = htonl(i);
 		static const int offset = sizeof(i);
-        LOGI("%s int sizeof = %d\n",__FUNCTION__,offset);
+		LOGI("%s int sizeof = %d\n",__FUNCTION__,offset);
 		if(!writeCom(&i,offset,NULL))
 			return false;
 		return skip(offset,false);
@@ -203,7 +197,7 @@ namespace NetworkUtil
 		if(net)
 			i = htons(i);
 		static const int offset = sizeof(i);
-        LOGI("%s short sizeof = %d\n",__FUNCTION__,offset);
+		LOGI("%s short sizeof = %d\n",__FUNCTION__,offset);
 		if(!writeCom(&i,offset,NULL))
 			return false;
 		return skip(offset,false);
@@ -211,7 +205,7 @@ namespace NetworkUtil
 	bool WriteStream::Write(char c)
 	{
 		static const int offset = sizeof(c);
-        LOGI("%s char sizeof = %d\n",__FUNCTION__,offset);
+		LOGI("%s char sizeof = %d\n",__FUNCTION__,offset);
 		if(!writeCom(&c,offset,NULL))
 			return false;
 		return skip(offset,false);
@@ -230,7 +224,7 @@ namespace NetworkUtil
 			{
 				unsigned short nShort = (unsigned short)length;
 				static const int offset = sizeof(unsigned short);
-                LOGI("unsigned short sizeof = %d\n",offset);
+				LOGI("unsigned short sizeof = %d\n",offset);
 				if(net)
 					nShort = htons(nShort);
 				if(!writeCom(&nShort,offset,NULL))
@@ -242,7 +236,7 @@ namespace NetworkUtil
 			{
 				unsigned long nLong = (unsigned long)length;
 				static const int offset = sizeof(unsigned long);
-                LOGI("unsigned long sizeof = %d\n",offset);
+				LOGI("unsigned long sizeof = %d\n",offset);
 				if(net)
 					nLong = htonl(nLong);
 				if(!writeCom(&nLong,offset,NULL))
@@ -263,14 +257,14 @@ namespace NetworkUtil
 	}
 	bool BinaryWriteStream::writeCom(const void* buffer,unsigned int len_to_write,unsigned int* len_writed)
 	{
-		//å¼‚å¸¸æ£€æŸ¥
+		//Òì³£¼ì²é
 		if(!buffer || !len_to_write)
 		{
 			if(len_writed)
 				*len_writed = 0;
 			return false;
 		}
-		//ä¸å¤Ÿå†™å…¥
+		//²»¹»Ð´Èë
 		if(cur+len_to_write > end)
 		{
 			unsigned int len = (unsigned int)(end - cur);

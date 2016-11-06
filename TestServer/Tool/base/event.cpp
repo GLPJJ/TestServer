@@ -1,10 +1,8 @@
-﻿#include "config.h"
-#include "../Tool.h"
-
+﻿#include "../Tool.h"
 #if defined(_WIN32)
 #include <windows.h>
 #include "event_win.h"
-#include "Mmsystem.h"
+#include <Mmsystem.h>
 #pragma comment(lib,"winmm.lib")
 #elif defined(NETUTIL_MAC) && !defined(NETUTIL_IOS)
 #include <ApplicationServices/ApplicationServices.h>

@@ -24,4 +24,10 @@
 
 #endif
 
+#ifdef TOOL_X64
+typedef unsigned long long TPOINTER;
+#else
+typedef unsigned int TPOINTER;
+#endif
+
 #endif//GLP_CONFIG_H_

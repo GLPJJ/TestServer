@@ -1,23 +1,19 @@
-﻿/*
-	注释时间:2014-4-25
-	用于精确测算函数的执行时间，for debug
-	以及其他需要精确计算时间的地方
-*/
-#ifndef TIMER_H_DEF
-#define TIMER_H_DEF
+﻿#ifndef GLP_TIMER_H_
+#define GLP_TIMER_H_
 
-#ifdef WIN32   // Windows system specific
+#ifdef _WIN32   // Windows system specific
 #include <windows.h>
 #else          // Unix based system specific
 #include <sys/time.h>
 #endif
 
+namespace Tool{
 
-class COS_Timer
+class Timer
 {
 public:
-	COS_Timer();                                    // default constructor
-	~COS_Timer();                                   // default destructor
+	Timer();                                    // default constructor
+	~Timer();                                   // default destructor
 
 	void		start();                             // start timer
 	void		start2();							// cur_startCount
@@ -31,14 +27,11 @@ public:
 	double getLastElapsedTimerInMilliSec();//获取上次的执行时间：毫秒
 	double getLastElapsedTimeInMicroSec();//获取上次的执行时间：微秒
 
-protected:
-
-
 private:
 	double startTimeInMicroSec;                 // starting time in micro-second
 	double endTimeInMicroSec;                   // ending time in micro-second
 	int    stopped;                             // stop flag 
-#ifdef WIN32
+#ifdef _WIN32
 	LARGE_INTEGER frequency;                    // ticks per second
 	LARGE_INTEGER startCount;                   //
 	LARGE_INTEGER endCount;                     //
@@ -53,4 +46,6 @@ private:
 #endif
 };
 
-#endif // TIMER_H_DEF
+};
+
+#endif // GLP_TIMER_H_

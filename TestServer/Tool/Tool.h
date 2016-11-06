@@ -1,6 +1,8 @@
 #ifndef GLP_TOOL_H_
 #define GLP_TOOL_H_
 
+#include "base/config.h"
+
 #include "base/log.h"
 #include "base/object.h"
 #include "base/mutex.h"
@@ -8,6 +10,10 @@
 #include "base/event.h"
 #include "base/thread.h"
 #include "base/thread_mgr.h"
+#include "base/timer.h"
+#include "base/datablock.h"
+#include "base/json.h"
+#include "base/rwstream.h"
 
 namespace Tool{
 

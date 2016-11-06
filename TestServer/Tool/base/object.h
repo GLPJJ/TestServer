@@ -74,6 +74,11 @@ namespace Tool{
 	};
 }
 
+#define calloc_(M_o) \
+	Allocator::GetInstance()->alloc(M_o)
+
+#define free_(M_o) \
+	Allocator::GetInstance()->dealloc((void*)M_o)
 
 //通用对象的 new_和delete_，可以不用继承Object
 #define new_(M_T,M_o,...) \

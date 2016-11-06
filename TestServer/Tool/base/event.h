@@ -1,7 +1,7 @@
 ﻿#ifndef GLP_EVENT_H_
 #define GLP_EVENT_H_
 
-#include "base.h"
+//#include "base.h"
 
 namespace Tool{
 

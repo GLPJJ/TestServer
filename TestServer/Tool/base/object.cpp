@@ -1,5 +1,4 @@
-#include "object.h"
-#include "mutex.h"
+#include "../Tool.h"
 #include <malloc.h>
 #include <assert.h>
 #include <string.h>
@@ -78,13 +77,13 @@ namespace Tool{
 
 	// Allocator
 	void* Allocator::alloc(unsigned int size){
-		void* pointer = malloc(size);
-		Log("alloc mem pointer = 0x%08x,size = %d\n",(unsigned int)pointer,size);
+		void* pointer = calloc(1,size);
+		Log("alloc mem pointer = 0x%08x,size = %d\n",(TPOINTER)pointer,size);
 		return pointer;
 	}
 	void Allocator::dealloc(void* pointer){
 		if (pointer != NULL){
-			Log("dealloc mem pointer = 0x%08x\n",(unsigned int)pointer);
+			Log("dealloc mem pointer = 0x%08x\n",(TPOINTER)pointer);
 			free(pointer);
 		}
 	}

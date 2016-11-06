@@ -1,13 +1,7 @@
-﻿// System independant wrapper for spawning threads
-// Note: the spawned thread will loop over the callback function until stopped.
-// Note: The callback function is expected to return every 2 seconds or more
-// often.
-
-#ifndef GLP_THREAD_H_
+﻿#ifndef GLP_THREAD_H_
 #define GLP_THREAD_H_
 
 #include "base.h"
-
 
 namespace Tool{
 

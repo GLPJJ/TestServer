@@ -589,6 +589,22 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Tool\base\datablock.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Tool\base\datablock.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Tool\base\event.cpp"
 					>
 					<FileConfiguration
@@ -610,6 +626,22 @@
 				</File>
 				<File
 					RelativePath=".\Tool\base\event_win.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Tool\base\json.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Tool\base\json.h"
 					>
 				</File>
 				<File
@@ -685,6 +717,38 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Tool\base\rwstream.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Tool\base\rwstream.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Tool\base\seqmap.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Tool\base\seqmap.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Tool\base\thread.cpp"
 					>
 					<FileConfiguration
@@ -722,6 +786,22 @@
 				</File>
 				<File
 					RelativePath=".\Tool\base\thread_win.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Tool\base\timer.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Tool\base\timer.h"
 					>
 				</File>
 			</Filter>

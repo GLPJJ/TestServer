@@ -1,15 +1,8 @@
 ﻿#ifndef THREADMGR__H__
 #define THREADMGR__H__
-/*
-	注释添加以及修改于 2014-4-2 
 
-	封装一个消息循环队列，对发送的信息进行处理。
-	消息的的发送有两种方式Post 跟 Send（阻塞等待处理完成）
-	提供ProcessMessage纯虚接口，子类实现自己的业务
-*/
-//#define _STLP_OUTERMOST_HEADER_ID 0x40
-#include <list>
 #include "thread.h"
+#include <list>
 
 namespace Tool{
 

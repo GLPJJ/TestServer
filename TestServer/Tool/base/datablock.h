@@ -1,27 +1,16 @@
-﻿#ifndef DATABLOCK__H__
-#define DATABLOCK__H__
-
-/*
-	注释添加以及修改于 2014-4-2 
-
-	封装一个对数据存储处理的类 DataBlock
-	每个函数已经给出简单的释义。
-*/
-namespace NetworkUtil
-{
+﻿#ifndef GLP_DATABLOCK_H_
+#define GLP_DATABLOCK_H_
 
 #define	DEFAULT_BLOCK_SIZE  1024
 #define	MAX_BLOCK_SIZE  1048576/*1024*1024*/
 
+namespace Tool
+{
 	class DataBlock
 	{
 	public:
-		DataBlock(unsigned int size = DEFAULT_BLOCK_SIZE)
-			: m_pos(0),m_size(size)
-		{
-			m_buf = new char[m_size];
-		}
-		virtual ~DataBlock() { if(m_buf)delete m_buf;}
+		DataBlock(unsigned int size = DEFAULT_BLOCK_SIZE);
+		virtual ~DataBlock();
 		//加到buffer的末尾
 		/*返回当前添加进去的字节数*/
 		int append(const char *buf,unsigned int buflen) {return copy(m_pos,buf,buflen);}
@@ -42,4 +31,4 @@ namespace NetworkUtil
 		unsigned int m_size;
 	};
 }
-#endif//DATABLOCK__H__
+#endif//GLP_DATABLOCK_H_

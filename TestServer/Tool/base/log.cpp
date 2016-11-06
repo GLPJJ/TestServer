@@ -1,4 +1,4 @@
-#include "log.h"
+#include "../Tool.h"
 #include <stdio.h>
 
 #ifdef WIN32

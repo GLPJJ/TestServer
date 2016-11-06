@@ -1,8 +1,17 @@
-﻿#include "datablock.h"
+﻿#include "../Tool.h"
 #include <string.h>
 
-namespace NetworkUtil
+namespace Tool
 {
+	DataBlock::DataBlock(unsigned int size)
+		: m_pos(0),m_size(size)
+	{
+		m_buf = (char*)calloc_(size);
+	}
+	DataBlock::~DataBlock() { 
+		free_(m_buf);
+	}
+
 	int DataBlock::copy(unsigned int pos,const char *buf,unsigned int buflen)
 	{
 		if(!buf || !buflen)
@@ -21,12 +30,12 @@ namespace NetworkUtil
 			while(newSize < tmppos)
 				newSize = newSize << 2;
 			
-			char *tmpbuf = new char[newSize];
+			char *tmpbuf = (char*)calloc_(newSize);
 			if(!tmpbuf)
 				return 0;
 
 			memcpy(tmpbuf,m_buf,m_pos);
-			delete []m_buf;
+			free_(m_buf);
 			memcpy(tmpbuf + pos,buf,buflen);
 
 			m_buf = tmpbuf;

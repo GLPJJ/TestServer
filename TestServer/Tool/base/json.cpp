@@ -34,7 +34,7 @@
 #define _BSD_SOURCE
 #endif
 
-#include "Json.h"
+#include "../Tool.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h> /* strtod (C89), strtof (C99) */
@@ -46,11 +46,9 @@
 #define SPINE_JSON_DEBUG 0
 #endif
 
-static const char* ep;
+namespace Tool{
 
-const char* Json_getError (void) {
-	return ep;
-}
+static const char* ep;
 
 static int Json_strcasecmp (const char* s1, const char* s2) {
 	/* TODO we may be able to elide these NULL checks if we can prove
@@ -74,8 +72,10 @@ static int Json_strcasecmp (const char* s1, const char* s2) {
 
 /* Internal constructor. */
 static Json *Json_new (void) {
-	void* p = calloc(1,sizeof(Json));
-	return (Json*)p;
+	new_(Json,p);
+	return p;
+// 	void* p = calloc(1,sizeof(Json));
+// 	return (Json*)p;
 }
 
 /* Delete a Json structure. */
@@ -84,9 +84,9 @@ void Json_dispose (Json *c) {
 	while (c) {
 		next = c->next;
 		if (c->child) Json_dispose(c->child);
-		if (c->valueString) free((void*)c->valueString);
-		if (c->name) free((void*)c->name);
-		free(c);
+		if (c->valueString) free_((void*)c->valueString);
+		if (c->name) free_((void*)c->name);
+		delete_(Json,c);
 		c = next;
 	}
 }
@@ -140,7 +140,7 @@ static const char* parse_string (Json *item, const char* str) {
 		if (*ptr++ == '\\') ptr++; /* Skip escaped quotes. */
 
 	
-	out = (char*)malloc(len + 1);//MALLOC(char, len + 1); /* The length needed for the string, roughly. */
+	out = (char*)calloc_(len + 1);//* The length needed for the string, roughly. */
 	if (!out) return 0;
 
 	ptr = str + 1;
@@ -425,4 +425,59 @@ float Json_getFloat (Json* value, const char* name, float defaultValue) {
 int Json_getInt (Json* value, const char* name, int defaultValue) {
 	value = Json_getItem(value, name);
 	return value ? value->valueInt : defaultValue;
+}
+
+Json::Json()
+:next()
+#if SPINE_JSON_HAVE_PREV
+,prev()
+#endif
+,child()
+,type()
+,size()
+,valueString()
+,valueInt()
+,valueFloat()
+,name()
+{
+	
+}
+
+Json* Json::Create(const char* value){
+	Json *c;
+	ep = 0;
+	if (!value) return 0; /* only place we check for NULL other than skip() */
+	c = Json_new();
+	if (!c) return 0; /* memory fail */
+
+	value = parse_value(c, skip(value));
+	if (!value) {
+		Json_dispose(c);
+		return 0;
+	} /* parse failure. ep is set. */
+
+	return c;
+}
+
+void Json::Release(Json* c){
+	Json_dispose(c);
+}
+
+Json* Json::getItem (const char* string){
+	return Json_getItem(this,string);
+}
+const char* Json::getString (const char* name, const char* defaultValue){
+	return Json_getString(this,name,defaultValue);
+}
+float Json::getFloat (const char* name, float defaultValue){
+	return Json_getFloat(this,name,defaultValue);
+}
+int Json::getInt (const char* name, int defaultValue){
+	return Json_getInt(this,name,defaultValue);
+}
+
+const char* Json::GetError (void){
+	return ep;
+}
+
 }

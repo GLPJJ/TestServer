@@ -1,15 +1,5 @@
-﻿/*
-	注释添加以及修改于 2014-4-3
-
-	提供临界区的封装，以及对临界区友好使用的类CriticalSectionScoped 范围锁：只在生命周期内锁住。
-	VoidGuard 防止内存泄露的友好类。是用free释放，所以只能保护malloc之类创建的内存
-
-	提供字符集之间的转换的函数。
-*/
-#ifndef GLP_MUTEX_H_
+﻿#ifndef GLP_MUTEX_H_
 #define GLP_MUTEX_H_
-
-#include "object.h"
 
 namespace Tool{
 
