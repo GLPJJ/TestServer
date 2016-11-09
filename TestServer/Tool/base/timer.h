@@ -1,12 +1,6 @@
 ﻿#ifndef GLP_TIMER_H_
 #define GLP_TIMER_H_
 
-#ifdef _WIN32   // Windows system specific
-#include <windows.h>
-#else          // Unix based system specific
-#include <sys/time.h>
-#endif
-
 namespace Tool{
 
 class Timer
@@ -31,19 +25,6 @@ private:
 	double startTimeInMicroSec;                 // starting time in micro-second
 	double endTimeInMicroSec;                   // ending time in micro-second
 	int    stopped;                             // stop flag 
-#ifdef _WIN32
-	LARGE_INTEGER frequency;                    // ticks per second
-	LARGE_INTEGER startCount;                   //
-	LARGE_INTEGER endCount;                     //
-
-	LARGE_INTEGER cur_startCount;
-	LARGE_INTEGER cur_endCount;
-#else
-	timeval startCount;                         //
-	timeval endCount;                           //
-	timeval cur_startCount;                         //
-	timeval cur_endCount;                           //
-#endif
 };
 
 };

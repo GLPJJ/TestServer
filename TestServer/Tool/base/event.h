@@ -1,8 +1,6 @@
 ﻿#ifndef GLP_EVENT_H_
 #define GLP_EVENT_H_
 
-//#include "base.h"
-
 namespace Tool{
 
 enum EventType{

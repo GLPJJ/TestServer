@@ -15,13 +15,13 @@ int ConvertToSystemPriority(ThreadPriority priority, int min_prio,int max_prio);
 class ThreadPosix : public Thread 
 {
  public:
-  static ThreadWrapper* Create(ThreadRunFunction func, ThreadObj obj,
+  static Thread* Create(ThreadRunFunction func, ThreadObj obj,
                                ThreadPriority prio, const char* thread_name);
 
   ThreadPosix(ThreadRunFunction func, ThreadObj obj, ThreadPriority prio,const char* thread_name);
   ~ThreadPosix();
 
-  // From ThreadWrapper.
+  // From Thread.
   virtual void SetNotAlive();
   virtual bool Start(unsigned int& id);
   // Not implemented on Mac.

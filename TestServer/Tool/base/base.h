@@ -8,4 +8,8 @@
 // function.
 #define ThreadObj void*
 
+#define DISALLOW_COPY_AND_ASSIGN(M_TypeName) \
+M_TypeName(const M_TypeName&); \
+void operator=(const M_TypeName&)
+
 #endif//GLP_BASE_H_

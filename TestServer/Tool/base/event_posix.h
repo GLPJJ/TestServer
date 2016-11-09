@@ -39,7 +39,7 @@ class EventPosix : public Event {
   pthread_cond_t  cond_;
   pthread_mutex_t mutex_;
 
-  ThreadWrapper* timer_thread_;
+  Thread* timer_thread_;
   EventPosix*    timer_event_;
   timespec       created_at_;
 
