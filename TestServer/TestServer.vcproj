@@ -637,7 +637,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Tool\base\datadecoder.cpp"
+					RelativePath=".\Tool\base\dataprocess.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -649,7 +649,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\Tool\base\datadecoder.h"
+					RelativePath=".\Tool\base\dataprocess.h"
 					>
 				</File>
 				<File
@@ -841,6 +841,22 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Tool\base\package.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Tool\base\package.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Tool\base\reactor.cpp"
 					>
 					<FileConfiguration
@@ -886,6 +902,22 @@
 				</File>
 				<File
 					RelativePath=".\Tool\base\seqmap.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Tool\base\serversocket.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Tool\base\serversocket.h"
 					>
 				</File>
 				<File

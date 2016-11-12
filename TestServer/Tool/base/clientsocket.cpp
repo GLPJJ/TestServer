@@ -1,10 +1,50 @@
 ﻿//#include "../Tool.h"
 #include "clientsocket.h"
-#include "datadecoder.h"
+#include "dataprocess.h"
 #include "log.h"
 
 namespace Tool
 {
+	ClientUdpSocket::ClientUdpSocket()
+		:m_port()
+	{
+	}
+
+	ClientUdpSocket::ClientUdpSocket(Reactor *pReactor,const char* host,short port)
+		: FDEventHandler(pReactor)
+		,m_port(port)
+	{
+		strncpy(m_host,host,sizeof(m_host));
+	}
+
+	int ClientUdpSocket::Init()
+	{
+		m_fd = socket(AF_INET,SOCK_DGRAM,0);
+		if(m_fd == INVALID_SOCKET)
+			return -1;
+
+		int i = 100;
+		while(i-- > 0)
+		{
+			struct sockaddr_in local={0};
+			local.sin_family = AF_INET;
+			local.sin_port = htons(m_port); ///监听端口
+			local.sin_addr.s_addr = inet_addr("127.0.0.1"); ///本机
+			if(bind(m_fd,(struct sockaddr*)&local,sizeof(local)) == SOCKET_ERROR)
+			{
+				m_port++;
+				continue;
+			}
+			else
+				break;
+		}
+		if(i <= 0)
+			return -1;
+
+		registerRead();
+		return 0;
+	}
+
 	void ClientSocketBase::onFDRead()
 	{
 		char buf[16384] = {0};/* 16*1024 */
@@ -12,8 +52,8 @@ namespace Tool
 
 		if (len == 0)
 		{
-			closeSocket();
 			onSocketClose();
+			close();
 			return;
 		}
 
@@ -23,15 +63,15 @@ namespace Tool
 			DWORD derrno = GetLastError();
 			if (derrno != WSAEWOULDBLOCK)
 			{
-				closeSocket();
 				onSocketRecvError(derrno);
+				close();
 			}
 #else//Linux
             int errorcode = errno;
 			if(errorcode!=EAGAIN)
 			{
-				closeSocket();
 				onSocketRecvError(errorcode);
+				close();
 			}
 #endif
 			return;
@@ -42,15 +82,15 @@ namespace Tool
 
 		if (m_recvdata.append(buf,len) != len)
 		{
-			closeSocket();
 			onNetLevelError(EC_RECV_BUFFER);
+			close();
 			return;
 		}
 		//解析网络数据，不足一个包的部分会有相应处理
 		if (m_pDecoder->process(this) < 0)
 		{
-			closeSocket();
 			onNetLevelError(EC_STREAM);
+			close();
 			return;
 		}
 	}
@@ -65,13 +105,13 @@ namespace Tool
 			DWORD derrno = GetLastError();
 			if( derrno != WSAEWOULDBLOCK )
 			{
-				closeSocket();
+				close();
 				onSocketSendError(derrno);
 			}
 #else//Linux
 			if(errno != EAGAIN)
 			{
-				closeSocket();
+				close();
 				onSocketSendError(errno);
 			}
 #endif
@@ -96,11 +136,7 @@ namespace Tool
             LOGE("%s : SendData Append Failed\n",__FUNCTION__);
 			return -1;
 		}
-		if(registerWrite() != 0)
-		{
-            LOGE("%s : RegisterWrite Failed\n",__FUNCTION__);
-			return -1;
-		}
+		registerWrite();
 		return 0;
 	}
 	char* ClientSocketBase::getPeerIp()
@@ -140,21 +176,34 @@ namespace Tool
 		}
 		return sIp;
 	}
-	void ClientSocketBase::closeSocket()
+	void ClientSocketBase::close()
 	{
 		m_bIsClosed = true;
 		m_recvdata.initPos();
 		m_senddata.initPos();
-		FDEventHandler::closeSocket();
+		FDEventHandler::close();
 	}
 /////////////////////////ClientSocket 实现/////////////////////////////////////////////////
 	void ClientSocket::onTimeOut()
 	{
-		m_isWaitingConnectComplete = false;
-		ClientSocketBase::closeSocket();
-		onSocketConnectTimeout();
+		//m_isWaitingConnectComplete = false;
+		switch(m_waitType){
+			case wait_for_connect:
+				{
+					onSocketConnectTimeout();
+					ClientSocketBase::close();
+					break;
+				}
+			case wait_for_write:
+				{
+					break;
+				}
+				
+		}
+		m_waitType = wait_for_none;
+		
 	}
-	void ClientSocket::closeSocket()
+	void ClientSocket::close()
 	{
 		/*
 			有可能Connect的时候没有网，网卡禁用的时候Connect居然返回成功，
@@ -163,9 +212,9 @@ namespace Tool
 		//if (m_isConnected || m_isWaitingConnectComplete)
 		{
 			m_isConnected = false;
-			m_isWaitingConnectComplete = false;
-			ClientSocketBase::closeSocket();
-			TMEventHandler::closeSocket();
+			m_waitType = wait_for_none;
+			ClientSocketBase::close();
+			TMEventHandler::close();
 		}
 	}
 	
@@ -178,7 +227,7 @@ namespace Tool
 		}
 		//如果是第一次回调，则说明网络描述符可用了
 		m_isConnected = true;
-		m_isWaitingConnectComplete = false;
+		m_waitType = wait_for_none;
 		open();
 		unRegisterTimer();//注销timer，从连接超时列表中去除
 		unRegisterWrite();//注销写fd_set
@@ -190,7 +239,7 @@ namespace Tool
 	int ClientSocket::Connect(const char* host,short port,int to)
 	{
 		//已经连接，或者正在连接
-		if (m_isConnected || m_isWaitingConnectComplete)
+		if (m_isConnected || m_waitType == wait_for_connect)
 			return 0;
 		//创建网络描述符 TCP
 		m_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -224,41 +273,35 @@ namespace Tool
 		if (connect(m_fd, (struct sockaddr*)&clientService, sizeof(clientService)) == SOCKET_ERROR 
 			&& !(((errorCode = WSAGetLastError()) == WSAEWOULDBLOCK) || (errorCode==WSAEINPROGRESS)))
 		{
-			closesocket(m_fd);
 #else
 		if(connect(m_fd, (struct sockaddr*)&clientService, sizeof(clientService)) == -1 
 			&& !(((errorCode=errno) == EAGAIN) || (errorCode == EINPROGRESS)))
 		{
-			close(m_fd);
 #endif
 			onSocketConnectError(errorCode);
+			closeSocket();
 			return -1;
 		}
 
 		//LOGI("%s : RegisterWrite wait for connected %d\n",__FUNCTION__,m_fd);
 		//如果为connect 返回-1 并且errorno为 EAGAIN
+		m_waitType = wait_for_connect;
 		registerWrite();//注册到写fd_set中 等待 OnFDWrite回调，第一次的话就说明这个fd可用了。
 		registerTimer(to);//注册超时处理
-		m_isWaitingConnectComplete = true;
 
 		return 0;
 	}
 
 	bool ClientSocket::SendBuf(BinaryWriteStream &stream)
 	{
-		if(addBuf(stream.getData(),stream.getSize()) != 0)
-		{
-			closeSocket();
-			return false;
-		}
-		return true;
+		return SendBuf(stream.getData(),stream.getSize());
 	}
 
 	bool ClientSocket::SendBuf(const char* buf,unsigned int buflen)
 	{
 		if(addBuf(buf,buflen) != 0)
 		{
-			closeSocket();
+			close();
 			return false;
 		}
 		return true;

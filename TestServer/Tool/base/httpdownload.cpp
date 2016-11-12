@@ -251,7 +251,7 @@ void CHttpDownload::uninitDownload()
 	//清空解压信息
 	m_gUnEncodingContent.initPos();
 
-	closeSocket();
+	close();
 	memset(&m_gDownloadState,0,sizeof(m_gDownloadState));
 	m_gDownloadState.state = DownloadState::DS_IDLE;
 }
@@ -281,7 +281,7 @@ void CHttpDownload::onFDRead()
 
 	if (len == 0)
 	{
-		closeSocket();
+		close();
 		onSocketClose();
 		return;
 	}
@@ -293,14 +293,14 @@ void CHttpDownload::onFDRead()
 		DWORD derrno = GetLastError();
 		if (derrno != WSAEWOULDBLOCK)
 		{
-			closeSocket();
+			close();
 			onSocketRecvError(derrno);
 		}
 #else//Linux
 		int errorcode = errno;
 		if(errorcode!=EAGAIN)
 		{
-			closeSocket();
+			close();
 			onSocketRecvError(errorcode);
 		}
 #endif
@@ -309,7 +309,7 @@ void CHttpDownload::onFDRead()
 
 	if (getRB()->append(buf,len) != len)
 	{
-		closeSocket();
+		close();
 		onNetLevelError(EC_RECV_BUFFER);
 		return;
 	}

@@ -73,36 +73,36 @@ namespace Tool
 	}
 
 	///////////////////////NetReactor 的实现///////////////////////////////////////////////////
-	NetReactor::NetReactor():m_bRunning(true),m_cs(NULL)
+	NetRector::NetRector():m_bRunning(true)
 	{
 		FD_ZERO(&m_readset);
 		FD_ZERO(&m_writeset);
 		m_cs = Mutex::CreateCriticalSection();
 	}
-	NetReactor::~NetReactor()
+	NetRector::~NetRector()
 	{
 		if (m_cs)
 			delete m_cs;
 	}
-	int NetReactor::registerIdle(IdleEventHandler *pHandler)
+	int NetRector::registerIdle(IdleEventHandler *pHandler)
 	{
 		MutexScoped lock(m_cs);
 		m_Set.addIdleEventHandler(pHandler);
 		return 0;
 	}
-	int NetReactor::unRegisterIdle(IdleEventHandler *pHandler)
+	int NetRector::unRegisterIdle(IdleEventHandler *pHandler)
 	{
 		MutexScoped lock(m_cs);
 		m_Set.delIdleEventHandler(pHandler);
 		return 0;
 	}
-	int NetReactor::registerTimer(TMEventHandler *pHandler,time_t to)
+	int NetRector::registerTimer(TMEventHandler *pHandler,time_t to)
 	{
 		MutexScoped lock(m_cs);
 		m_Set.addTMEventHandler(pHandler,to);
 		return 0;
 	}
-	int NetReactor::registerReadEvent(FDEventHandler *pHandler)
+	int NetRector::registerReadEvent(FDEventHandler *pHandler)
 	{
 		MutexScoped lock(m_cs);
 		//还没加入读fd_set
@@ -111,7 +111,7 @@ namespace Tool
 		m_Set.addFDEventHandler(pHandler);//加入map
 		return 0;
 	}
-	int NetReactor::registerWriteEvent(FDEventHandler *pHandler)
+	int NetRector::registerWriteEvent(FDEventHandler *pHandler)
 	{
 		MutexScoped lock(m_cs);
 		//如果不在写fd_set中
@@ -121,13 +121,13 @@ namespace Tool
 		return 0;
 	}
 
-	int NetReactor::unRegisterTimer(TMEventHandler *pHandler)
+	int NetRector::unRegisterTimer(TMEventHandler *pHandler)
 	{
 		MutexScoped lock(m_cs);
 		m_Set.delTMEventHandler(pHandler);
 		return 0;
 	}
-	int NetReactor::unRegisterReadEvent(FDEventHandler *pHandler)
+	int NetRector::unRegisterReadEvent(FDEventHandler *pHandler)
 	{
 		MutexScoped lock(m_cs);
 		if(FD_ISSET(pHandler->getFD(),&m_readset))
@@ -136,7 +136,7 @@ namespace Tool
 			m_Set.delFDEventHandler(pHandler->getFD());
 		return 0;
 	}
-	int NetReactor::unRegisterWriteEvent(FDEventHandler *pHandler)
+	int NetRector::unRegisterWriteEvent(FDEventHandler *pHandler)
 	{
 		MutexScoped lock(m_cs);
 		if(FD_ISSET(pHandler->getFD(),&m_writeset))
@@ -145,7 +145,7 @@ namespace Tool
 			m_Set.delFDEventHandler(pHandler->getFD());
 		return 0;
 	}
-	int NetReactor::unRegisterEvent(FDEventHandler *pHandler)
+	int NetRector::unRegisterEvent(FDEventHandler *pHandler)
 	{
 		MutexScoped lock(m_cs);
 		if (FD_ISSET(pHandler->getFD(),&m_writeset))
@@ -157,12 +157,13 @@ namespace Tool
 		return 0;
 	}
 
-	int NetReactor::stop()
+	int NetRector::stop()
 	{
 		m_bRunning = false;
 		return 0;
 	}
-	bool NetReactor::run()
+
+	bool NetClientReactor::run()
 	{
 		m_bRunning = true;
 
@@ -211,7 +212,7 @@ namespace Tool
 						maxfd =(int) it->first;
 				}
 			}
-			maxfd ++;//最大描述符+1
+			maxfd = maxfd+1;//最大描述符+1
 
 			struct timeval tv = {0,50};//50微秒
 			int nfds = select(maxfd,&readset,&writeset,NULL,&tv);
@@ -245,5 +246,86 @@ namespace Tool
 			}
 		}
 		return false;//结束线程
+	}
+
+	bool NetServerReactor::run()
+	{
+		m_bRunning = true;
+
+		while(true)
+		{
+			//执行可能的心跳包
+			Reactor::run();
+
+			int maxfd = -1;
+			fd_set readset;
+			fd_set writeset;
+			MAPSOCKETFDH tmpFDMap;
+			FD_ZERO(&readset);
+			FD_ZERO(&writeset);
+			tmpFDMap.clear();
+
+			{
+				MutexScoped lock(m_cs);
+
+				readset = m_readset;
+				writeset = m_writeset;
+				tmpFDMap = m_Set.m_FDEHMap;
+				//把一些无效的描述符关闭
+				m_Set.dealClose();
+
+				//遍历超时列表，查看是否有socket连接超时
+				m_Set.scan();
+				//空闲处理
+				m_Set.idle();
+			}
+
+			if(tmpFDMap.empty())
+			{
+				SleepMs(100);
+				if(!m_bRunning) {
+					break;
+				}
+				continue;
+			}
+			else
+			{
+				MAPSOCKETFDH::iterator it = tmpFDMap.begin();
+				for(;it!=tmpFDMap.end();it++)
+				{
+					if (maxfd < (int)it->first)
+						maxfd =(int) it->first;
+				}
+			}
+			maxfd = maxfd+1;//最大描述符+1
+
+			struct timeval tv = {0,50};//50微秒
+			int nfds = select(maxfd,&readset,&writeset,NULL,&tv);
+			if(nfds == SOCKET_ERROR)
+			{
+				LOGE("%s : server select error :  %d\n",__FUNCTION__,errno);
+			}
+
+			if(!m_bRunning && nfds <= 0)
+				break;
+
+			MAPSOCKETFDH::iterator it = tmpFDMap.begin();
+			for(; it != tmpFDMap.end(); it++)
+			{
+				SOCKET sock = it->first;
+
+				if(FD_ISSET(sock,&writeset))
+				{
+					if(it->second)
+						it->second->onFDWrite();
+				}
+				if(FD_ISSET(sock,&readset))
+				{
+					if(it->second)
+						it->second->onFDRead();
+				}
+			}
+		}
+		return false;
 	}
 }

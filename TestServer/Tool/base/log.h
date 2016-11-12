@@ -3,6 +3,8 @@
 
 namespace Tool{
 
+	void InitLogDir(const char* dir);
+
 	void Log(char* pszLog,...);
 
 	// This function sleeps for the specified number of milliseconds.

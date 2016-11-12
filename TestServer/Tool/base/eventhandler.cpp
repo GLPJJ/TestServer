@@ -11,7 +11,7 @@ namespace Tool
 	{
 		return GetReactor()->unRegisterTimer(this);
 	}
-	void TMEventHandler::closeSocket()
+	void TMEventHandler::close()
 	{
 		GetReactor()->unRegisterTimer(this);
 	}
@@ -48,8 +48,7 @@ namespace Tool
 	{
 #ifdef WIN32
 		u_long l = 1;//非0：非阻塞；0：阻塞
-		if(ioctlsocket(m_fd,FIONBIO,&l) == SOCKET_ERROR)
-			return -1;
+		return ioctlsocket(m_fd,FIONBIO,&l);
 #else 
 		int flags = fcntl(m_fd, F_GETFL, 0);    
 		if(fcntl(m_fd, F_SETFL, flags|O_NONBLOCK) == -1)
@@ -57,9 +56,24 @@ namespace Tool
 #endif
 		return 0;
 	}
-	void FDEventHandler::closeSocket()
+
+	int FDEventHandler::setAddrReuse()
+	{
+		int on=1;
+		return setsockopt(m_fd,SOL_SOCKET,SO_REUSEADDR,(char*)&on,sizeof(on));
+	}
+	void FDEventHandler::close()
 	{
 		GetReactor()->unRegisterEvent(this);
+		m_fd = INVALID_SOCKET;
+	}
+	void FDEventHandler::closeSocket()
+	{
+#ifdef WIN32
+		closesocket(m_fd);
+#else
+		close(m_fd);
+#endif
 		m_fd = INVALID_SOCKET;
 	}
 }

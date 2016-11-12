@@ -6,6 +6,10 @@
 //定义 包解析的接口
 namespace Tool
 {
+	class ClientSocketBase;
+	class HttpSocketBase;
+	class Package;
+
 	//流的数据类型，
 	typedef enum _StreamType
 	{
@@ -20,31 +24,28 @@ namespace Tool
 		HEADER_LEN_6 = 6,
 	}HeadType;
 
-	class ClientSocketBase;
-	class HttpSocketBase;
-
-	class DataDecoderBase
+	class DataProcessBase
 	{
 	public:
-		DataDecoderBase(){}
-		virtual ~DataDecoderBase(){}
+		virtual ~DataProcessBase(){}
+
 		virtual int process(ClientSocketBase *pClient) = 0;
 	};
 
-	class DataDecoder : public DataDecoderBase
+	class DataProcess : public DataProcessBase
 	{
 	public:
-		DataDecoder(StreamType pttype,HeadType hdlen) : m_pttype(pttype),m_hdlen(hdlen) {}
-		virtual ~DataDecoder(){}
+		DataProcess(StreamType pttype,HeadType hdlen) : m_pttype(pttype),m_hdlen(hdlen) {}
+		virtual ~DataProcess(){}
 		//解析分发完整包数据,交给OnPackage处理
 		virtual int process(ClientSocketBase *pClient);
 		//对收到的包进行处理： 返回0成功，返回非0失败
-		virtual int onPackage(ClientSocketBase *pClient,const char* buf,unsigned int buflen) = 0;
+		virtual int onPackage(ClientSocketBase *pClient,Package* package) = 0;
 		//从提供的参数buf中获取包的长度 Net -> Loacal
 		unsigned int GetBuflen(char *buf);
 
 	protected:
-		StreamType		m_pttype;
+		StreamType	m_pttype;
 		HeadType		m_hdlen;
 	};
 }

@@ -33,7 +33,7 @@ namespace Tool
 		EventHandler():m_pReactor(NULL){}
 		void SetReactor(Reactor *pReactor){m_pReactor = pReactor;}
 		Reactor* GetReactor(){return m_pReactor;}
-		virtual void closeSocket() = 0;
+		virtual void close() = 0;
 	protected:
 		Reactor *m_pReactor;
 	};
@@ -50,7 +50,6 @@ namespace Tool
 		int registerIdle();
 		int unRegisterIdle();
 		virtual void close();
-		virtual void closeSocket(){}
 	};
 	//对事件的处理
 	class TMEventHandler : virtual public EventHandler
@@ -63,37 +62,52 @@ namespace Tool
 		virtual void onTimeOut() = 0;
 		int registerTimer(time_t to);
 		int unRegisterTimer();
-		virtual void closeSocket();
+		virtual void close();
 		void setTimerID(int id) {m_id = id;}
 		int getTimerID() {return m_id;}
 	private:
 		int m_id;
 	};
-	//对 socket事件的处理
+
+	//对 socket事件的处理,虚继承，子类继承相同类可以只保留一份父类
 	class FDEventHandler : virtual public EventHandler
 	{
 	public:
 		virtual ~FDEventHandler() {}
 		FDEventHandler():m_fd(INVALID_SOCKET) {}
 		FDEventHandler(Reactor *pReactor):m_fd(INVALID_SOCKET)  {SetReactor(pReactor);}
-		inline void setFD(SOCKET fd) {m_fd = fd;}
+		
 		//fd 读的时候 可接受
 		virtual void onFDRead() = 0;
 		//fd 写的时候 可发送
 		virtual void onFDWrite() = 0;
 
-		virtual void closeSocket();
+// 		virtual void OnFDReadTimeOut() = 0;
+// 		virtual void OnFDWriteTimeOut() = 0;
+
+		virtual void close();
 
 		int registerRead();
 		int registerWrite();
 		int unRegisterRead();
 		int unRegisterWrite();
 
-		inline SOCKET getFD() const {return m_fd;}
-		//设置非阻塞
+		//设置非阻塞 返回0 成功
 		int setNonBlocking();
+		//设置地址复用 返回0 成功
+		int setAddrReuse();
+
+		inline void setFD(SOCKET fd) {m_fd = fd;}
+		inline SOCKET getFD() const {return m_fd;}
+		inline void SetClientID(int id){m_id = id;}
+		inline int GetClientID(){return m_id;}
+
+	protected:
+		void closeSocket();
+
 	protected:
 		SOCKET m_fd;
+		int m_id;
 	};
 }
 

@@ -1,4 +1,5 @@
-﻿
+﻿#include "../Tool.h"
+
 #ifdef WIN32
 	#include <winsock2.h>
 #else
@@ -7,12 +8,11 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include "datadecoder.h"
-#include "clientsocket.h"
+
 
 namespace Tool
 {
-	unsigned int DataDecoder::GetBuflen(char *buf)
+	unsigned int DataProcess::GetBuflen(char *buf)
 	{
 		if(m_pttype == PROTOCOLTYPE_BINARY)
 		{
@@ -36,12 +36,12 @@ namespace Tool
 			char lenbuf[10] = {0};
 			memcpy(lenbuf,buf,m_hdlen);
 			//字符串转长整数，以16进制返回结果
-			long int len = strtol(lenbuf, NULL, 16);
+			long len = strtol(lenbuf, NULL, 16);
 			return (unsigned int)len;
 		}
 		return 0;
 	}
-	int DataDecoder::process(ClientSocketBase *pClient)
+	int DataProcess::process(ClientSocketBase *pClient)
 	{
 		DataBlock *recvdb = pClient->getRB();
 		char *buf = recvdb->getBuf();
@@ -65,7 +65,8 @@ namespace Tool
 				break;
 
 			//获取到一个完整包，解析包
-			if(onPackage(pClient,ptr,buflen) != 0)
+			
+			if(onPackage(pClient,&Package(ptr,buflen)) != 0)
 			{
 				//解析失败
 				recvdb->initPos();

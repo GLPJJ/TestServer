@@ -16,73 +16,43 @@ namespace Tool
 	};
 
 	class DataBlock;
-	class DataDecoderBase;
+	class DataProcessBase;
 
-	class UdpSocket : public FDEventHandler
+	class ClientUdpSocket : public FDEventHandler
 	{
 	public:
-		virtual ~UdpSocket(){}
-		UdpSocket():m_port(){}
-		UdpSocket(Reactor *pReactor,const char* host,short port) : FDEventHandler(pReactor),m_port(port)
-		{
-			strncpy(m_host,host,sizeof(m_host));
-		}
+		ClientUdpSocket();
+		ClientUdpSocket(Reactor *pReactor,const char* host,short port);
+		virtual ~ClientUdpSocket(){}
+
+	public:
 		virtual void onFDWrite(){}
-		virtual int Init()
-		{
-			m_fd = socket(AF_INET,SOCK_DGRAM,0);
-			if(m_fd == INVALID_SOCKET)
-				return -1;
+		virtual int Init();
+		short Getport(){return m_port;}
 
-			int i = 100;
-			while(i-- > 0)
-			{
-				struct sockaddr_in local={0};
-				local.sin_family = AF_INET;
-				local.sin_port = htons(m_port); ///监听端口
-				local.sin_addr.s_addr = inet_addr("127.0.0.1"); ///本机
-				if(bind(m_fd,(struct sockaddr*)&local,sizeof(local)) == SOCKET_ERROR)
-				{
-					m_port++;
-					continue;
-				}
-				else
-					break;
-			}
-			if(i <= 0)
-				return -1;
-
-			registerRead();
-			return 0;
-		}
-		short Getport(){
-			return m_port;
-		}
 	private:
 		short m_port;
 		char m_host[20];
 	};
-
-	//////////////////////////////////////////////////////////////////////////
 
 	class ClientSocketBase : public FDEventHandler
 	{
 	public:
 		virtual ~ClientSocketBase(){if(m_pCSSendData)delete m_pCSSendData;}
         
-		ClientSocketBase() : m_pDecoder(NULL),m_pCSSendData(NULL),m_bIsClosed(true){
+		ClientSocketBase() : m_pDecoder(NULL),m_bIsClosed(true){
             m_pCSSendData = Mutex::CreateCriticalSection();
         }
 		ClientSocketBase(Reactor *pReactor) : FDEventHandler(pReactor),m_pDecoder(NULL),m_bIsClosed(true){
             m_pCSSendData = Mutex::CreateCriticalSection();
         }
-		void setDecoder(DataDecoderBase* pDecoder){m_pDecoder = pDecoder;}
+		void setDecoder(DataProcessBase* pDecoder){m_pDecoder = pDecoder;}
 		//网络可读的时候，recv数据
 		virtual void onFDRead();
 		//网络可写的时候，send数据
 		virtual void onFDWrite();
 		//关闭处理
-		virtual void closeSocket();
+		virtual void close();
 
 		inline bool isClosed(){return m_bIsClosed;}
 		DataBlock* getRB(){return &m_recvdata;}
@@ -112,23 +82,31 @@ namespace Tool
 	private:
 		DataBlock m_recvdata;
 		DataBlock m_senddata;
-		DataDecoderBase *m_pDecoder;
+		DataProcessBase *m_pDecoder;
 		bool m_bIsClosed;
     public:
         Mutex* m_pCSSendData;
 	};
+
 	class ClientSocket : public ClientSocketBase ,public TMEventHandler
 	{
 	public:
+		enum  eWaitType{
+			wait_for_none,
+			wait_for_connect,
+			wait_for_write,
+			wait_for_read
+		};
+	public:
 		virtual ~ClientSocket(){}
-		ClientSocket(Reactor *pReactor) : ClientSocketBase(pReactor),m_isConnected(false),
-			m_isWaitingConnectComplete(false),m_port(0){ }
+		ClientSocket(Reactor *pReactor) : ClientSocketBase(pReactor),m_isConnected(false)
+			,m_port(0),m_waitType(wait_for_none){ }
 
 		//增加对非阻塞描述符的情况判断。
 		virtual void onFDWrite();
 		//连接超时
 		virtual void onTimeOut();
-		virtual void closeSocket();
+		virtual void close();
 
 		int Connect(const char* host,short port,int to = 10);
 		bool IsConnect(){return m_isConnected;}
@@ -149,9 +127,10 @@ namespace Tool
 
 	private:
 		bool m_isConnected;
-		bool m_isWaitingConnectComplete;
 		char m_host[20];
 		short m_port;
+
+		eWaitType  m_waitType;
 	};
 };
 

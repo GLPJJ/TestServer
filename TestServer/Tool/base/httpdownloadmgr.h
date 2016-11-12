@@ -54,7 +54,7 @@ private:
 	CHttpDownload*      m_gHttpDownload[MAX_DOWNLOAD];
 	Mutex*						m_pCS;
 public:
-	NetReactor				m_gReactor;
+	NetClientReactor				m_gReactor;
 };
 
 } /* namespace NetworkUtil */

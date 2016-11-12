@@ -6,6 +6,7 @@
 #include <set>
 #include <time.h>
 #include "eventhandler.h"
+#include "serversocket.h"
 
 namespace Tool
 {
@@ -52,10 +53,10 @@ namespace Tool
 	public:	
 		//加入到超时map中，如果发现已经存在则修改
 		void addTMEventHandler(TMEventHandler *pHandler,time_t to);
-		//加入到空闲set中
-		void addIdleEventHandler(IdleEventHandler *pHandler){if(pHandler)m_IdleEHList.insert(pHandler);}
 		//从超时map中删除
 		void delTMEventHandler(TMEventHandler *pHandler){if(pHandler)m_TMEHMap.erase(pHandler->getTimerID());}
+		//加入到空闲set中
+		void addIdleEventHandler(IdleEventHandler *pHandler){if(pHandler)m_IdleEHList.insert(pHandler);}
 		//从空闲set中删除
 		void delIdleEventHandler(IdleEventHandler *pHandler){if(pHandler)m_IdleEHList.erase(pHandler);}
 		//加入到socketmap中
@@ -80,12 +81,14 @@ namespace Tool
 		SETIDLEH m_IdleEHList;
 	};
 
-	class NetReactor : public Reactor
+
+	class NetRector : public Reactor
 	{
 	public:
-		NetReactor();
-		virtual ~NetReactor();
+		NetRector();
+		virtual ~NetRector();
 
+	public:
 		virtual int registerTimer(TMEventHandler *pHandler,time_t to);
 		virtual int registerReadEvent(FDEventHandler *pHandler);
 		virtual int registerWriteEvent(FDEventHandler *pHandler);
@@ -97,16 +100,38 @@ namespace Tool
 		virtual int unRegisterWriteEvent(FDEventHandler *pHandler);
 		virtual int unRegisterIdle(IdleEventHandler *pHandler);
 
-		//封装
-		virtual bool run();
 		virtual int stop();
-	private:
+
+	protected:
+		Mutex* m_cs;
 		fd_set m_readset;
 		fd_set m_writeset;
-		EventHandlerSet m_Set;
+
 		bool m_bRunning;
-		//简单方便就把所有的事件都用一个临界区
-        Mutex* m_cs;
+		EventHandlerSet m_Set;
+	};
+
+	class NetClientReactor : public NetRector
+	{
+	public:
+		NetClientReactor(){}
+		virtual ~NetClientReactor(){}
+
+	public:
+		virtual bool run();
+	};
+
+	class NetServerReactor : public NetRector
+	{
+	public:
+		NetServerReactor(){}
+		virtual ~NetServerReactor(){}
+
+	public:
+		virtual bool run();
+
+	private:
+		ClientMap mClientMap;
 	};
 }
 #endif//GLP_REACTOR_H_
