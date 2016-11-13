@@ -42,7 +42,7 @@ namespace Tool
 		//对收到的包进行处理： 返回0成功，返回非0失败
 		virtual int onPackage(ClientSocketBase *pClient,Package* package) = 0;
 		//从提供的参数buf中获取包的长度 Net -> Loacal
-		unsigned int getBuflen(char *buf);
+		size_t getBuflen(char *buf);
 
 	protected:
 		StreamType	m_pttype;

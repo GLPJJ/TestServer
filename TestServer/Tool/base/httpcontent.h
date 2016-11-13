@@ -33,8 +33,8 @@ namespace Tool{
 /* force a cleanup */
 void Http_unencode_cleanup(Tool::CHttpDownload* k);
 
-int Http_unencode_deflate_write(Tool::CHttpDownload* k,unsigned char* httbBuf,unsigned int httpBufLen);
+int Http_unencode_deflate_write(Tool::CHttpDownload* k,unsigned char* httbBuf,size_t httpBufLen);
 
-int Http_unencode_gzip_write(Tool::CHttpDownload* k,unsigned char* httbBuf,unsigned int httpBufLen);
+int Http_unencode_gzip_write(Tool::CHttpDownload* k,unsigned char* httbBuf,size_t httpBufLen);
 
 #endif /* HEADER_CURL_CONTENT_ENCODING_H */

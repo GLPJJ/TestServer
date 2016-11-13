@@ -197,7 +197,7 @@ void CHttpDownload::initDownload(const char* url,ONPROGRESS funProgress,Download
 			strcpy(m_gDownloadInfo.fileName , pInfo->fileName);
 			strcpy(m_gDownloadInfo.unzipDir , pInfo->unzipDir);
 
-			static unsigned int s_count = 0;
+			static size_t s_count = 0;
 			s_count ++;
 			sprintf(m_gDownloadInfo.tmpFileName,"%s_tmp_%d",m_gDownloadInfo.fileName,s_count);
 
@@ -373,7 +373,7 @@ bool CHttpDownload::onSocketConnect()
 		m_nFrom = getFileSize(m_gDownloadInfo.tmpFileName);
 	else
 		m_nFrom = 0;
-	int len = formatRequestHeader(m_sRequestHeader,m_nRequestHeaderSize,m_sRequest,sizeof(m_sRequest),
+	size_t len = formatRequestHeader(m_sRequestHeader,m_nRequestHeaderSize,m_sRequest,sizeof(m_sRequest),
 			m_sHost,m_nFrom,0,m_sPostData,m_nPostDataLen);
 
 	//发送请求
@@ -600,14 +600,14 @@ int CHttpDownload::parseResponseHeader()
 	return DOWNLOAD_OK;
 }
 
-int CHttpDownload::getResponseHeader(DataBlock* pDb/*char* buf*/)
+size_t CHttpDownload::getResponseHeader(DataBlock* pDb)
 {
 	if (!pDb)
 		return 0;
 
-	int nIndex = 0;
+	size_t nIndex = 0;
 	char* pData = pDb->getBuf();
-	while( nIndex < (int)pDb->getPos() )
+	while( nIndex < pDb->getPos() )
 	{
 		if ( nIndex >= m_nResponseHeaderSize ) {
 			m_nResponseHeaderSize = m_nResponseHeaderSize * 2;
@@ -646,14 +646,14 @@ int CHttpDownload::recvResponseHeader(/*char* buf, int buflen*/DataBlock* pDb)
 		return RESPONSE_HEADER_NOT_FINISH;
 
 	// 读取http响应头
-	int nHeadLen = getResponseHeader( /*buf*/pDb );
+	size_t nHeadLen = getResponseHeader( /*buf*/pDb );
 	if ( nHeadLen == 0 )	//服务器响应头还没有接受完整
 	{
 		return RESPONSE_HEADER_NOT_FINISH;
 	}
 
 	// 重置数据缓存中的数据
-	int nRemainLen = pDb->getPos() - nHeadLen;
+	size_t nRemainLen = pDb->getPos() - nHeadLen;
 	if(nRemainLen == 0)
 		pDb->initPos();
 	else
@@ -683,19 +683,19 @@ bool CHttpDownload::checkMD5(const std::string fileName,const  std::string md5)
 		return false;
 }
 
-int CHttpDownload::writeZlibDeBuffer(const unsigned char* p,unsigned int len)
+size_t CHttpDownload::writeZlibDeBuffer(const unsigned char* p,size_t len)
 {
 	if(m_gDownloadInfo.download)
 	{
 		if(!m_fileTmp)
 			return 0;
 
-		unsigned int writtenLen = 0;
-		unsigned int dataLen = len;
-		unsigned int remainLen = dataLen;
+		size_t writtenLen = 0;
+		size_t dataLen = len;
+		size_t remainLen = dataLen;
 		do
 		{
-			unsigned int written = (unsigned int)fwrite(p+writtenLen,1,remainLen,m_fileTmp);
+			size_t written = (size_t)fwrite(p+writtenLen,1,remainLen,m_fileTmp);
 			writtenLen += written;
 			remainLen -= written;
 		}while(remainLen > 0);
@@ -743,8 +743,8 @@ CHttpDownload::DOWNLOAD_STATE CHttpDownload::dealWithTransferEncodingAndCommon(D
 	if(!pDb)
 		return nRetState;
 	
-	int nCurLenData = 0;
-	int nCurRealLen = 0;
+	size_t nCurLenData = 0;
+	size_t nCurRealLen = 0;
 	do
 	{
 		if(m_bTransferEncodingChunked)
@@ -755,10 +755,10 @@ CHttpDownload::DOWNLOAD_STATE CHttpDownload::dealWithTransferEncodingAndCommon(D
 
 				const char* pData = pDb->getBuf();
 				const char* pTmp = pData;
-				int nLenData = pDb->getPos();
+				size_t nLenData = pDb->getPos();
 
 				char sChuckLen[260] = {0};
-				int nLenTmp = 0;
+				size_t nLenTmp = 0;
 				while(*pTmp != '\r')
 				{
 					nLenTmp++;
@@ -810,8 +810,8 @@ CHttpDownload::DOWNLOAD_STATE CHttpDownload::dealWithTransferEncodingAndCommon(D
 			break ;
 		}
 		
-		int nCurRealLenAndEndS = nCurRealLen+2;//2 : 代指需要跳过每个chunk的\r\n
-		int nRemainLen = nCurLenData-nCurRealLenAndEndS;
+		size_t nCurRealLenAndEndS = nCurRealLen+2;//2 : 代指需要跳过每个chunk的\r\n
+		size_t nRemainLen = nCurLenData-nCurRealLenAndEndS;
 		if(nRemainLen>0)
 			pDb->copy(0,pDb->getBuf()+nCurRealLenAndEndS,nRemainLen);
 		else
@@ -826,7 +826,7 @@ CHttpDownload::DOWNLOAD_STATE CHttpDownload::dealWithTransferEncodingAndCommon(D
 	return nRetState;
 }
 
-CHttpDownload::DOWNLOAD_STATE CHttpDownload::onDownloadSaveData(const char* pData,int nLenData)
+CHttpDownload::DOWNLOAD_STATE CHttpDownload::onDownloadSaveData(const char* pData,size_t nLenData)
 {
 	if(!pData)
 		return DOWNLOAD_ERROR;
@@ -873,12 +873,12 @@ CHttpDownload::DOWNLOAD_STATE CHttpDownload::onDownloadSaveData(const char* pDat
 		}
 		else
 		{
-			int writtenLen = 0;
-			int dataLen = nLenData;
-			int remainLen = dataLen;
+			size_t writtenLen = 0;
+			size_t dataLen = nLenData;
+			size_t remainLen = dataLen;
 			do
 			{
-				int written = (int)fwrite(pData+writtenLen,1,remainLen,m_fileTmp);
+				size_t written = fwrite(pData+writtenLen,1,remainLen,m_fileTmp);
 				writtenLen += written;
 				remainLen -= written;
 			}while(remainLen > 0);
@@ -1013,8 +1013,8 @@ void CHttpDownload::onDownloadFinish()
 		m_pMgr->doNext(bSuccess,this);
 }
 
-int CHttpDownload::formatRequestHeader( char* SendHeader, int SendHeaderSize, char* Request, int RequestSize
-		, char* Host, int From, int To, char* Data, long DataSize )
+int CHttpDownload::formatRequestHeader( char* SendHeader, size_t SendHeaderSize, char* Request, size_t RequestSize
+		, char* Host, size_t From, size_t To, char* Data, size_t DataSize )
 {
 	if (!SendHeader || !Request || !Host)
 	{

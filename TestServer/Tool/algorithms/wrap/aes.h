@@ -42,7 +42,7 @@ void aes_decrypt(const BYTE in[],             // 16 bytes of ciphertext
 // AES - CBC
 ///////////////////
 int aes_encrypt_cbc(const BYTE in[],          // Plaintext
-                    size_t in_len,            // Must be a multiple of AES_BLOCK_SIZE
+                    int in_len,            // Must be a multiple of AES_BLOCK_SIZE
                     BYTE out[],               // Ciphertext, same length as plaintext
                     const WORD key[],         // From the key setup
                     int keysize,              // Bit length of the key, 128, 192, or 256
@@ -50,7 +50,7 @@ int aes_encrypt_cbc(const BYTE in[],          // Plaintext
 
 // Only output the CBC-MAC of the input.
 int aes_encrypt_cbc_mac(const BYTE in[],      // plaintext
-                        size_t in_len,        // Must be a multiple of AES_BLOCK_SIZE
+                        int in_len,        // Must be a multiple of AES_BLOCK_SIZE
                         BYTE out[],           // Output MAC
                         const WORD key[],     // From the key setup
                         int keysize,          // Bit length of the key, 128, 192, or 256

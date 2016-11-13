@@ -110,8 +110,8 @@ namespace Tool
 		void closeSocket();
 
 	protected:
-		SOCKET m_fd;
-		int m_id;
+		SOCKET m_fd;//网络描述符
+		int m_id;//用户ID
 	};
 }
 

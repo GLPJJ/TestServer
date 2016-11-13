@@ -4,7 +4,7 @@
 
 namespace Tool
 {
-	DataBlock::DataBlock(unsigned int size)
+	DataBlock::DataBlock(size_t size)
 		: m_pos(0),m_size(size)
 	{
 		m_buf = (char*)calloc_(size);
@@ -13,12 +13,12 @@ namespace Tool
 		free_(m_buf);
 	}
 
-	int DataBlock::copy(unsigned int pos,const char *buf,unsigned int buflen)
+	size_t DataBlock::copy(size_t pos,const char *buf,size_t buflen)
 	{
 		if(!buf || !buflen)
 			return -1;
 
-		unsigned int tmppos = pos +  buflen;
+		size_t tmppos = pos +  buflen;
 		//未超出容量
 		if(  tmppos <= m_size )
 		{
@@ -27,7 +27,7 @@ namespace Tool
 		}
 		else 
 		{
-			unsigned int newSize = m_size;
+			size_t newSize = m_size;
 			while(newSize < tmppos)
 				newSize = newSize << 2;
 			

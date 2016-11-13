@@ -269,7 +269,7 @@ bool EventPosix::startTimer(bool periodic, unsigned long time) {
 		thread_name);
 	periodic_ = periodic;
 	time_ = time;
-	unsigned int id = 0;
+	size_t id = 0;
 	if (timer_thread_->start(id)) {
 		return true;
 	}

@@ -108,7 +108,7 @@ static int inflate_stream(CHttpDownload* k)
       allow_restart = 0;
       if((DSIZ - z->avail_out)) {
 
-		int ret = k->writeZlibDeBuffer((unsigned char*)decomp,DSIZ - z->avail_out);
+		size_t ret = k->writeZlibDeBuffer((unsigned char*)decomp,DSIZ - z->avail_out);
         if(ret == 0) {
           free(decomp);
           return exit_zlib(z, &k->zlib_init, result);
@@ -154,7 +154,7 @@ static int inflate_stream(CHttpDownload* k)
   /* Will never get here */
 }
 
-int Http_unencode_deflate_write(Tool::CHttpDownload* k,unsigned char* httbBuf,unsigned int httpBufLen)
+int Http_unencode_deflate_write(Tool::CHttpDownload* k,unsigned char* httbBuf,size_t httpBufLen)
 {
   z_stream *z = &k->z;          /* zlib state structure */
 
@@ -171,7 +171,7 @@ int Http_unencode_deflate_write(Tool::CHttpDownload* k,unsigned char* httbBuf,un
 
   /* Set the compressed input when this function is called */
   z->next_in = httbBuf;
-  z->avail_in = httpBufLen;
+  z->avail_in = (uInt)httpBufLen;
 
   /* Now uncompress the data */
   return inflate_stream(k);
@@ -184,10 +184,10 @@ enum eGZIP_RET{
   GZIP_BAD,
   GZIP_UNDERFLOW
 };
-static eGZIP_RET check_gzip_header(unsigned char const *data, unsigned int len, unsigned int *headerlen)
+static eGZIP_RET check_gzip_header(unsigned char const *data, size_t len, size_t *headerlen)
 {
   int method, flags;
-  const unsigned int totallen = len;
+  const size_t totallen = len;
 
   /* The shortest header is 10 bytes */
   if(len < 10)
@@ -262,7 +262,7 @@ static eGZIP_RET check_gzip_header(unsigned char const *data, unsigned int len, 
 }
 #endif
 
-int Http_unencode_gzip_write(Tool::CHttpDownload* k,unsigned char* httbBuf,unsigned int httpBufLen)
+int Http_unencode_gzip_write(Tool::CHttpDownload* k,unsigned char* httbBuf,size_t httpBufLen)
 {
   z_stream *z = &k->z;          /* zlib state structure */
 
@@ -291,7 +291,7 @@ int Http_unencode_gzip_write(Tool::CHttpDownload* k,unsigned char* httbBuf,unsig
   if(k->zlib_init == CHttpDownload::ZLIB_INIT_GZIP) {
     /* Let zlib handle the gzip decompression entirely */
     z->next_in = httbBuf;
-    z->avail_in = httpBufLen;
+    z->avail_in = (uInt)httpBufLen;
     /* Now uncompress the data */
     return inflate_stream(k);
   }
@@ -317,7 +317,7 @@ int Http_unencode_gzip_write(Tool::CHttpDownload* k,unsigned char* httbBuf,unsig
   case CHttpDownload::ZLIB_INIT:
   {
     /* Initial call state */
-    unsigned int hlen;
+    size_t hlen;
 
     switch (check_gzip_header(httbBuf, httpBufLen, &hlen)) {
     case GZIP_OK:

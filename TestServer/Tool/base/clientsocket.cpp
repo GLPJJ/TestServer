@@ -96,7 +96,7 @@ namespace Tool
 	void ClientSocketBase::onFDWrite()
 	{
         MutexScoped lock(m_pCSSendData);
-		unsigned int buflen = m_senddata.getPos();
+		size_t buflen = m_senddata.getPos();
 		int len = ::send(m_fd,m_senddata.getBuf(),(int)buflen,0);
 		if (len == SOCKET_ERROR)
 		{
@@ -116,18 +116,18 @@ namespace Tool
 #endif
 			return;
 		}
-		if((unsigned int)len == buflen)
+		if((size_t)len == buflen)
 		{
 			m_senddata.initPos();
 			unRegisterWrite();
 			return;
 		}
-		else if((unsigned int)len < buflen)
+		else if((size_t)len < buflen)
 		{
 			m_senddata.copy(0,m_senddata.getBuf() + len , buflen - len);
 		}
 	}
-	int ClientSocketBase::addBuf(const char* buf,unsigned int buflen)
+	int ClientSocketBase::addBuf(const char* buf,size_t buflen)
 	{
         MutexScoped lock(m_pCSSendData);
 		if(m_senddata.append(buf,buflen) != buflen)
@@ -142,7 +142,7 @@ namespace Tool
 	{
 		sockaddr_in addr;
 #ifdef NETUTIL_MAC
-		unsigned int len = sizeof(sockaddr_in);
+		size_t len = sizeof(sockaddr_in);
 #else
 		int len = sizeof(sockaddr_in);
 #endif
@@ -289,7 +289,7 @@ namespace Tool
 		return sendBuf(stream.getData(),stream.getSize());
 	}
 
-	bool ClientSocket::sendBuf(const char* buf,unsigned int buflen)
+	bool ClientSocket::sendBuf(const char* buf,size_t buflen)
 	{
 		if(addBuf(buf,buflen) != 0)
 		{

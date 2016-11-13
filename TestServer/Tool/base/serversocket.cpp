@@ -54,7 +54,7 @@ namespace Tool{
 		if(clientSocket == INVALID_SOCKET){
 			onAcceptError(errno);
 		} else {
-			onAccept(clientSocket,&addr);
+			onAccept((int)clientSocket,&addr);
 		}
 	}
 

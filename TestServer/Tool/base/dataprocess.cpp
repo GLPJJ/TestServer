@@ -15,7 +15,7 @@
 
 namespace Tool
 {
-	unsigned int DataProcess::getBuflen(char *buf)
+	size_t DataProcess::getBuflen(char *buf)
 	{
 		if(m_pttype == PROTOCOLTYPE_BINARY)
 		{
@@ -24,14 +24,14 @@ namespace Tool
 				short len;
 				memcpy(&len,buf,sizeof(len));
 				len = ntohs(len);
-				return (unsigned int)len;
+				return (size_t)len;
 			}
 			else if(m_hdlen == HEADER_LEN_4)
 			{
 				int len;
 				memcpy(&len,buf,sizeof(len));
 				len = ntohl(len);
-				return (unsigned int)len;
+				return (size_t)len;
 			}
 		}
 		else if(m_pttype == PROTOCOLTYPE_TEXT)
@@ -40,7 +40,7 @@ namespace Tool
 			memcpy(lenbuf,buf,m_hdlen);
 			//字符串转长整数，以16进制返回结果
 			long len = strtol(lenbuf, NULL, 16);
-			return (unsigned int)len;
+			return (size_t)len;
 		}
 		return 0;
 	}
@@ -49,15 +49,15 @@ namespace Tool
 		DataBlock *recvdb = pClient->getRB();
 		char *buf = recvdb->getBuf();
 		char *ptr = buf;
-		unsigned int pos = recvdb->getPos();
+		size_t pos = recvdb->getPos();
 
 		while(true)
 		{
 			// 长度不超过包头长度的时候
-			if( (unsigned int)(buf + pos - ptr) <= (unsigned int)m_hdlen)
+			if( (size_t)(buf + pos - ptr) <= (size_t)m_hdlen)
 				break;
 			//取包头长度
-			unsigned int buflen = getBuflen(ptr);
+			size_t buflen = getBuflen(ptr);
 			if(buflen == 0)//异常数据
 			{
 				recvdb->initPos();
@@ -86,7 +86,7 @@ namespace Tool
 		}
 
 		//剩余的不足一个包长度的数据，把它拷贝下来。
-		unsigned int  remain = (unsigned int)(buf + pos - ptr);
+		size_t  remain = (size_t)(buf + pos - ptr);
 		if( remain == 0)
 			recvdb->initPos();
 		else

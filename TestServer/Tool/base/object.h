@@ -67,7 +67,7 @@ namespace Tool{
 		/*
 		@size  期望分配的内存大小
 		*/
-		virtual void* alloc(unsigned int size);
+		virtual void* alloc(size_t size);
 		virtual void dealloc(void* pointer);
 
 		static Allocator* GetInstance();

@@ -53,22 +53,22 @@ namespace Tool
 
 		return skip(VALUE_SIZE,false);
 	}
-	bool ReadStream::readLength(unsigned int & outlen)
+	bool ReadStream::readLength(size_t & outlen)
 	{
 		if ( !readLengthWithoutOffset(outlen) )
 			return false;
 
 		// 偏移到数据的位置
-		return skip((int)htype,false);
+		return skip((size_t)htype,false);
 	}
-	bool ReadStream::readLengthWithoutOffset(unsigned int & outlen)
+	bool ReadStream::readLengthWithoutOffset(size_t & outlen)
 	{
 		switch(htype)
 		{
 		case BINARY_PACKLEN_LEN:
 			{
 				unsigned short tmp;
-				unsigned int len_readed;
+				size_t len_readed;
 				if(!readCom(&tmp,sizeof(tmp),&len_readed))
 					return false;
 				if(net)
@@ -79,8 +79,8 @@ namespace Tool
 			}
 		case TEXT_PACKLEN_LEN:
 			{
-				unsigned int tmp;
-				unsigned int len_readed;
+				unsigned long tmp;
+				size_t len_readed;
 				if(!readCom(&tmp,sizeof(tmp),&len_readed))
 					return false;
 				if(net)
@@ -93,21 +93,21 @@ namespace Tool
 		return true;
 	}
 
-	unsigned int ReadStream::readAll(char * szBuffer, unsigned int iLen)
+	size_t ReadStream::readAll(char * szBuffer, size_t iLen)
 	{
 		if(!szBuffer || !iLen)
 			return 0;
 
-		unsigned int minLen = min(iLen, getSize());
+		size_t minLen = min(iLen, getSize());
 		memcpy(szBuffer, getData(), minLen);
 		return minLen;
 	}
-	bool ReadStream::read(char* str, unsigned int strlen, /* out */ unsigned int& outlen)
+	bool ReadStream::read(char* str, size_t strlen, /* out */ size_t& outlen)
 	{
 		if(!str || !strlen)
 			return false;
 
-		unsigned int fieldlen;
+		size_t fieldlen;
 		//读取字符串长度，根据协议数据长度类型。
 		if ( !readLength(fieldlen) ) {
 			return false;
@@ -124,13 +124,13 @@ namespace Tool
 		return skip(fieldlen,false);
 	}
 
-	BinaryReadStream::BinaryReadStream(const char* ptr_, unsigned int len_,PACKAGELEN_TYPE htype_)
+	BinaryReadStream::BinaryReadStream(const char* ptr_, size_t len_,PACKAGELEN_TYPE htype_)
 		:ReadStream(htype_),start(ptr_),len(len_),cur(ptr_),end(ptr_+len_)
 	{
 		skip((int)htype,false);
 	}
 
-	bool BinaryReadStream::readCom(/*out*/void* buffer,/*in*/unsigned int len_to_read,/*out*/unsigned int* len_readed)
+	bool BinaryReadStream::readCom(/*out*/void* buffer,/*in*/size_t len_to_read,/*out*/size_t* len_readed)
 	{
 		//不读取数据，或者buffer为空
 		if(!buffer||!len_to_read)
@@ -142,7 +142,7 @@ namespace Tool
 		//没有那么多数据读取
 		if(cur+len_to_read > end)
 		{
-			unsigned int len = end-cur;
+			size_t len = end-cur;
 			if(len)
 				memcpy(buffer,cur,len);
 			if(len_readed)
@@ -156,7 +156,7 @@ namespace Tool
 		return true;
 	}
 
-	bool BinaryReadStream::skip(int offset,bool peek)
+	bool BinaryReadStream::skip(size_t offset,bool peek)
 	{
 		if(cur+offset > end)
 			return false;
@@ -165,14 +165,14 @@ namespace Tool
 		return true;
 	}
 	////////////////////////////////write operation//////////////////////////////////////////
-	BinaryWriteStream::BinaryWriteStream(char* ptr_, unsigned int len_,PACKAGELEN_TYPE htype_)
+	BinaryWriteStream::BinaryWriteStream(char* ptr_, size_t len_,PACKAGELEN_TYPE htype_)
 		:WriteStream(htype_), start(ptr_), len(len_), cur(ptr_),end(ptr_+len_)
 	{
-		skip((int)htype,false);
+		skip((size_t)htype,false);
 	}
-	bool WriteStream::write(const char* str, unsigned int length)
+	bool WriteStream::write(const char* str, size_t length)
 	{
-		if(!skip(length+(int)htype))
+		if(!skip(length+htype))
 			return false;
 
 		if ( !writeLength(length) ) {
@@ -248,7 +248,7 @@ namespace Tool
 		}
 		return true;
 	}
-	bool BinaryWriteStream::skip(int offset,bool peek)
+	bool BinaryWriteStream::skip(size_t offset,bool peek)
 	{
 		if(cur+offset > end)
 			return false;
@@ -284,7 +284,7 @@ namespace Tool
 
 	bool BinaryWriteStream::isValid() const
 	{
-		unsigned int datalen = getSize();
+		size_t datalen = getSize();
 		return datalen > BINARY_PACKLEN_LEN && datalen <= PACKAGE_MAXLEN;
 	}
 	void BinaryWriteStream::flush()

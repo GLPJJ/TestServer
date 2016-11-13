@@ -231,7 +231,7 @@ void xor_buf(const BYTE in[], BYTE out[], size_t len)
 /*******************
 * AES - CBC
 *******************/
-int aes_encrypt_cbc(const BYTE in[], size_t in_len, BYTE out[], const WORD key[], int keysize, const BYTE iv[])
+int aes_encrypt_cbc(const BYTE in[], int in_len, BYTE out[], const WORD key[], int keysize, const BYTE iv[])
 {
 	BYTE buf_in[AES_BLOCK_SIZE], buf_out[AES_BLOCK_SIZE], iv_buf[AES_BLOCK_SIZE];
 	int blocks, idx;
@@ -254,7 +254,7 @@ int aes_encrypt_cbc(const BYTE in[], size_t in_len, BYTE out[], const WORD key[]
 	return(TRUE);
 }
 
-int aes_encrypt_cbc_mac(const BYTE in[], size_t in_len, BYTE out[], const WORD key[], int keysize, const BYTE iv[])
+int aes_encrypt_cbc_mac(const BYTE in[], int in_len, BYTE out[], const WORD key[], int keysize, const BYTE iv[])
 {
 	BYTE buf_in[AES_BLOCK_SIZE], buf_out[AES_BLOCK_SIZE], iv_buf[AES_BLOCK_SIZE];
 	int blocks, idx;
@@ -279,7 +279,7 @@ int aes_encrypt_cbc_mac(const BYTE in[], size_t in_len, BYTE out[], const WORD k
 	return(TRUE);
 }
 
-int aes_decrypt_cbc(const BYTE in[], size_t in_len, BYTE out[], const WORD key[], int keysize, const BYTE iv[])
+int aes_decrypt_cbc(const BYTE in[], int in_len, BYTE out[], const WORD key[], int keysize, const BYTE iv[])
 {
 	BYTE buf_in[AES_BLOCK_SIZE], buf_out[AES_BLOCK_SIZE], iv_buf[AES_BLOCK_SIZE];
 	int blocks, idx;

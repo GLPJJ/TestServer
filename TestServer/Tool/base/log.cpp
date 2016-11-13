@@ -76,7 +76,7 @@ namespace Tool{
 
 		//strcat(log,"\n");
 		if(g_hStdOut != NULL)
-			WriteConsoleA(g_hStdOut, log, strlen(log), NULL, NULL);
+			WriteConsoleA(g_hStdOut, log, (DWORD)strlen(log), NULL, NULL);
 		//OutputDebugStringA(log);
 		va_end(pszLog);
 	}

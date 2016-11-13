@@ -78,7 +78,7 @@ namespace Tool{
 	}
 
 	// Allocator
-	void* Allocator::alloc(unsigned int size){
+	void* Allocator::alloc(size_t size){
 		void* pointer = calloc(1,size);
 		Log("alloc mem pointer = 0x%08x,size = %d\n",(TPOINTER)pointer,size);
 		return pointer;

@@ -17,8 +17,8 @@ typedef struct _DownloadState
 		DS_STOP,// 暂停下载
 	}eDownloadState;
 	volatile eDownloadState 		state;//下载状态
-	long											downsize;//已经下载大小
-	long											filesize;//文件总大小
+	size_t									downsize;//已经下载大小
+	size_t									filesize;//文件总大小
 
 	_DownloadState():state(DS_IDLE),downsize(0L),filesize(0L){}
 	float progress()const{ if(filesize==0L)return 0.0f;return downsize*1.0f/filesize;}
@@ -53,22 +53,22 @@ public:
      */
     static bool checkMD5(const std::string fileName,const  std::string md5);
 
-	int writeZlibDeBuffer(const unsigned char* p,unsigned int len);
+	size_t writeZlibDeBuffer(const unsigned char* p,size_t len);
 private:
 	bool validHostChar( char c );
 	void parseURL( const char* url, char * protocol, int lprotocol, char * host, int lhost, char * request, int lrequest, short * port );
-	int formatRequestHeader( char* SendHeader, int SendHeaderSize, char* Request, int RequestSize, char* Host
-			, int From, int To, char* Data, long DataSize );
+	int formatRequestHeader( char* SendHeader, size_t SendHeaderSize, char* Request, size_t RequestSize, char* Host
+			, size_t From, size_t To, char* Data, size_t DataSize );
 
 	long getFileSize(const char* file);
 	int getFieldValue(const char *szRequestHeader, const char *szSection, char *nValue, const int nMaxLen);
 	int parseResponseHeader();
-	int getResponseHeader(DataBlock* pDb);
+	size_t getResponseHeader(DataBlock* pDb);
 	int recvResponseHeader(DataBlock* pDb);
 
 	bool onFinishDowndFile();
 	DOWNLOAD_STATE dealWithTransferEncodingAndCommon(DataBlock* pDb);
-	virtual DOWNLOAD_STATE onDownloadSaveData(const char* pData,int nLenData);
+	virtual DOWNLOAD_STATE onDownloadSaveData(const char* pData,size_t nLenData);
 	virtual void onDownloadByNewUrl();
 	virtual void onDownloadError();
 	virtual void onDownloadFinish();
@@ -90,8 +90,8 @@ public:
 	bool startDownload();
 	bool isIdle(){return (m_gDownloadState.state != DownloadState::DS_BUSY);}
 private:
-	CHttpDownloadMgr*               m_pMgr;
-	bool 						m_bInit;
+	CHttpDownloadMgr*   m_pMgr;
+	bool 								m_bInit;
 	bool							m_isNeedSaveData;
 
 	bool							m_bTransferEncodingChunked;
@@ -100,37 +100,37 @@ private:
 		CE_Deflate,
 		CE_Gzip,
 	};
-	eContentEncoding m_eContentEncoding;
+	eContentEncoding	m_eContentEncoding;
 	int 							m_nTryDownload;
 
-	std::string				m_sOldUrl;
+	std::string					m_sOldUrl;
 
 	std::string 				m_sUrl;
 	char							m_sProtocol[20];
-	char 						m_sHost[256];
+	char 							m_sHost[256];
 	char							m_sIp[256];
 	char							m_sRequest[1024];	// 协议、服务器主机、请求内容
-	short						m_nPort;
+	short							m_nPort;
 	//断点续传
-	int							m_nFrom;
+	size_t						m_nFrom;
 
 	char*						m_sPostData;
-	int							m_nPostDataLen;
+	size_t						m_nPostDataLen;
 
 	char*						m_sRequestHeader;
-	int 							m_nRequestHeaderSize;
+	size_t 						m_nRequestHeaderSize;
 	char*						m_sResponseHeader;
-	int 							m_nResponseHeaderSize;
+	size_t 						m_nResponseHeaderSize;
 
 	bool							m_bIsRecvResponseHeader;
 
 	//chunk 定义,如果http回应里面没有content lenght的处理
-	long							m_nCurChunkSize;// 当前块的大小。
-	long							m_nCurChunkDownloadSize;// 当前块已经下载字节数。
-	long							m_nTotalChunkSize;// 所有块总共的累计字节数。
+	size_t						m_nCurChunkSize;// 当前块的大小。
+	size_t						m_nCurChunkDownloadSize;// 当前块已经下载字节数。
+	size_t						m_nTotalChunkSize;// 所有块总共的累计字节数。
 	//保存下载状态
-	DownloadState                  m_gDownloadState;
-	ONPROGRESS                    m_funProgress;
+	DownloadState        m_gDownloadState;
+	ONPROGRESS          m_funProgress;
 
 	FILE*							m_fileTmp;
 	Timer						m_gTimer;

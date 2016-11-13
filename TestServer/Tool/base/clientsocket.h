@@ -38,14 +38,15 @@ namespace Tool
 	class ClientSocketBase : public FDEventHandler
 	{
 	public:
+		ClientSocketBase() : m_pDecoder(NULL),m_bIsClosed(true){
+			m_pCSSendData = Mutex::CreateCriticalSection();
+		}
+		ClientSocketBase(Reactor *pReactor) : FDEventHandler(pReactor),m_pDecoder(NULL),m_bIsClosed(true){
+			m_pCSSendData = Mutex::CreateCriticalSection();
+		}
 		virtual ~ClientSocketBase(){if(m_pCSSendData)delete m_pCSSendData;}
         
-		ClientSocketBase() : m_pDecoder(NULL),m_bIsClosed(true){
-            m_pCSSendData = Mutex::CreateCriticalSection();
-        }
-		ClientSocketBase(Reactor *pReactor) : FDEventHandler(pReactor),m_pDecoder(NULL),m_bIsClosed(true){
-            m_pCSSendData = Mutex::CreateCriticalSection();
-        }
+	public:
 		void setDecoder(DataProcessBase* pDecoder){m_pDecoder = pDecoder;}
 		//网络可读的时候，recv数据
 		virtual void onFDRead();
@@ -58,26 +59,27 @@ namespace Tool
 		DataBlock* getRB(){return &m_recvdata;}
 		DataBlock* getWB(){return &m_senddata;}
 		//add buffer的时候注册写fd_set，这样可以被执行到OnFDWrite();
-		virtual int addBuf(const char* buf,unsigned int buflen);
+		virtual int addBuf(const char* buf,size_t buflen);
 		char* getPeerIp();
 
 		//从域名中解析出Ip地址,只返回第一个解析出来的,字符串保存在静态空间中，返回值不需要释放！
 		static const char* GetIpv4FromHostname(const char* name);
 	protected:
 		void open(){m_bIsClosed = false;}
+
 	public:
 		// 连接成功
-		virtual bool onSocketConnect() = 0; 
+		virtual bool onSocketConnect() {return true;} 
 		// 连接超时
-		virtual void onSocketConnectTimeout() = 0;
+		virtual void onSocketConnectTimeout() {}
 		// 正常关闭(被动关闭),recv == 0的情况
-		virtual void onSocketClose() = 0;
+		virtual void onSocketClose() {}
 		// errcode为错误码(socket提供)
-		virtual void onSocketConnectError(int errCode) = 0;
-		virtual void onSocketRecvError(int errCode) = 0;
-		virtual void onSocketSendError(int errCode) = 0;
+		virtual void onSocketConnectError(int errCode) {}
+		virtual void onSocketRecvError(int errCode) {}
+		virtual void onSocketSendError(int errCode) {}
 		// 网络层错误(errCode网络层定义)
-		virtual void onNetLevelError(int errCode) = 0;
+		virtual void onNetLevelError(int errCode) {}
 
 	private:
 		DataBlock m_recvdata;
@@ -112,18 +114,11 @@ namespace Tool
 		bool isConnect(){return m_isConnected;}
 		//添加的sendbuf中，并注册到写fd_set中
 		bool sendBuf(BinaryWriteStream &stream);
-		bool sendBuf(const char* buf,unsigned int buflen);
+		bool sendBuf(const char* buf,size_t buflen);
 
 		inline const char* gethost(){return m_host;}
 		inline short getport(){return m_port;}
 	public:
-		virtual bool onSocketConnect() {return true;} 
-		virtual void onSocketConnectTimeout() {}
-		virtual void onSocketConnectError(int errCode) {}
-		virtual void onSocketClose() {}
-		virtual void onSocketRecvError(int errCode) {}
-		virtual void onSocketSendError(int errCode) {}
-		virtual void onNetLevelError(int errCode) {}
 
 	private:
 		bool m_isConnected;
