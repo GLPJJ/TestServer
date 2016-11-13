@@ -1,4 +1,6 @@
-﻿#include "../Tool.h"
+﻿#include "event.h"
+#include "object.h"
+
 #if defined(_WIN32)
 #include <windows.h>
 #include "event_win.h"
@@ -29,16 +31,16 @@ EventWindows::~EventWindows() {
 	CloseHandle(event_);
 }
 
-bool EventWindows::Set() {
+bool EventWindows::set() {
 	// Note: setting an event that is already set has no effect.
 	return SetEvent(event_) == 1 ? true : false;
 }
 
-bool EventWindows::Reset() {
+bool EventWindows::reset() {
 	return ResetEvent(event_) == 1 ? true : false;
 }
 
-EventType EventWindows::Wait(unsigned long max_time) {
+EventType EventWindows::wait(unsigned long max_time) {
 	unsigned long res = WaitForSingleObject(event_, max_time);
 	switch (res) {
 	case WAIT_OBJECT_0:
@@ -50,7 +52,7 @@ EventType EventWindows::Wait(unsigned long max_time) {
 	}
 }
 
-bool EventWindows::StartTimer(bool periodic, unsigned long time) {
+bool EventWindows::startTimer(bool periodic, unsigned long time) {
 	if (timerID_ != NULL) {
 		timeKillEvent(timerID_);
 		timerID_ = NULL;
@@ -69,7 +71,7 @@ bool EventWindows::StartTimer(bool periodic, unsigned long time) {
 	return true;
 }
 
-bool EventWindows::StopTimer() {
+bool EventWindows::stopTimer() {
 	timeKillEvent(timerID_);
 	timerID_ = NULL;
 	return true;
@@ -149,12 +151,12 @@ int EventPosix::Construct() {
 }
 
 EventPosix::~EventPosix() {
-	StopTimer();
+	stopTimer();
 	pthread_cond_destroy(&cond_);
 	pthread_mutex_destroy(&mutex_);
 }
 
-bool EventPosix::Reset() {
+bool EventPosix::reset() {
 	if (0 != pthread_mutex_lock(&mutex_)) {
 		return false;
 	}
@@ -163,7 +165,7 @@ bool EventPosix::Reset() {
 	return true;
 }
 
-bool EventPosix::Set() {
+bool EventPosix::set() {
 	if (0 != pthread_mutex_lock(&mutex_)) {
 		return false;
 	}
@@ -174,7 +176,7 @@ bool EventPosix::Set() {
 	return true;
 }
 
-EventType EventPosix::Wait(unsigned long timeout) {
+EventType EventPosix::wait(unsigned long timeout) {
 	int ret_val = 0;
 	if (0 != pthread_mutex_lock(&mutex_)) {
 		return kEventError;
@@ -223,7 +225,7 @@ EventType EventPosix::Wait(unsigned long timeout) {
 	}
 }
 
-EventTypeWrapper EventPosix::Wait(timespec& wake_at) {
+EventTypeWrapper EventPosix::wait(timespec& wake_at) {
 	int ret_val = 0;
 	if (0 != pthread_mutex_lock(&mutex_)) {
 		return kEventError;
@@ -246,7 +248,7 @@ EventTypeWrapper EventPosix::Wait(timespec& wake_at) {
 	}
 }
 
-bool EventPosix::StartTimer(bool periodic, unsigned long time) {
+bool EventPosix::startTimer(bool periodic, unsigned long time) {
 	if (timer_thread_) {
 		if (periodic_) {
 			// Timer already started.
@@ -255,7 +257,7 @@ bool EventPosix::StartTimer(bool periodic, unsigned long time) {
 			// New one shot timer
 			time_ = time;
 			created_at_.tv_sec = 0;
-			timer_event_->Set();
+			timer_event_->set();
 			return true;
 		}
 	}
@@ -268,7 +270,7 @@ bool EventPosix::StartTimer(bool periodic, unsigned long time) {
 	periodic_ = periodic;
 	time_ = time;
 	unsigned int id = 0;
-	if (timer_thread_->Start(id)) {
+	if (timer_thread_->start(id)) {
 		return true;
 	}
 	return false;
@@ -307,7 +309,7 @@ bool EventPosix::Process() {
 		end_at.tv_nsec -= E9;
 	}
 
-	switch (timer_event_->Wait(end_at)) {
+	switch (timer_event_->wait(end_at)) {
 	case kEventSignaled:
 		return true;
 	case kEventError:
@@ -316,20 +318,20 @@ bool EventPosix::Process() {
 		break;
 	}
 	if (periodic_ || count_ == 1) {
-		Set();
+		set();
 	}
 	return true;
 }
 
-bool EventPosix::StopTimer() {
+bool EventPosix::stopTimer() {
 	if (timer_thread_) {
-		timer_thread_->SetNotAlive();
+		timer_thread_->setNotAlive();
 	}
 	if (timer_event_) {
-		timer_event_->Set();
+		timer_event_->set();
 	}
 	if (timer_thread_) {
-		if (!timer_thread_->Stop()) {
+		if (!timer_thread_->stop()) {
 			return false;
 		}
 
@@ -357,7 +359,7 @@ Event* Event::Create() {
 #endif
 }
 
-void Event::destroy(Event* p){
+void Event::Destroy(Event* p){
 	delete_(Event,p)
 }
 

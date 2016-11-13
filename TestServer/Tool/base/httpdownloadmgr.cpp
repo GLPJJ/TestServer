@@ -31,8 +31,8 @@ CHttpDownloadMgr::~CHttpDownloadMgr() {
 	m_gReactor.stop();
 	if(m_pThread)
 	{
-		if(!m_pThread->Stop())
-			m_pThread->Terminate(0);
+		if(!m_pThread->stop())
+			m_pThread->terminate(0);
 		delete m_pThread;
 	}
 
@@ -68,7 +68,7 @@ bool CHttpDownloadMgr::initDownload()
 	if(!m_pThread)
 		return false;
 	unsigned int threadID;
-	return m_pThread->Start(threadID);
+	return m_pThread->start(threadID);
 }
 
 int CHttpDownloadMgr::addTask(TaskDownload& task,bool priority)

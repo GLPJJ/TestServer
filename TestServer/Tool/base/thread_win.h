@@ -15,12 +15,12 @@ public:
                 const char* thread_name);
   virtual ~ThreadWindows();
 
-  virtual bool Start(unsigned int& id);
-  bool SetAffinity(const int* processor_numbers,const unsigned int amount_of_processors);
-  virtual bool Stop();
-  virtual void SetNotAlive();
-  virtual bool WaitFor(unsigned int ms=TOOL_EVENT_INFINITE);
-  virtual bool Terminate(unsigned long ecode);
+  virtual bool start(unsigned int& id);
+  bool setAffinity(const int* processor_numbers,const unsigned int amount_of_processors);
+  virtual bool stop();
+  virtual void setNotAlive();
+  virtual bool waitFor(unsigned int ms=TOOL_EVENT_INFINITE);
+  virtual bool terminate(unsigned long ecode);
 
   static unsigned int WINAPI StartThread(LPVOID lp_parameter);
 

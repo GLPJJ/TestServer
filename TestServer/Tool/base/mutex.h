@@ -7,7 +7,7 @@ class Mutex {
 public:
 	// Factory method, constructor disabled
 	static Mutex* CreateCriticalSection();
-	static void destroy(Mutex* p);
+	static void Destroy(Mutex* p);
 
 	virtual ~Mutex() {}
 

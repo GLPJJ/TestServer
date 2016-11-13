@@ -38,14 +38,15 @@ public:
                                      ThreadObj obj,
                                      ThreadPriority prio = kNormalPriority,
                                      const char* thread_name = 0);
-  static void destroy(Thread* p);
+  static void Destroy(Thread* p);
 
   // Get the current thread's kernel thread ID.
   static unsigned int GetThreadId();
 
+public:
   // Non blocking termination of the spawned thread. Note that it is not safe
   // to delete this class until the spawned thread has been reclaimed.
-  virtual void SetNotAlive() = 0;
+  virtual void setNotAlive() = 0;
 
   // Tries to spawns a thread and returns true if that was successful.
   // Additionally, it tries to set thread priority according to the priority
@@ -53,14 +54,14 @@ public:
   // not result in a false return value.
   // TODO(henrike): add a function for polling whether priority was set or
   //                not.
-  virtual bool Start(unsigned int& id) = 0;
+  virtual bool start(unsigned int& id) = 0;
 
   // Sets the threads CPU affinity. CPUs are listed 0 - (number of CPUs - 1).
   // The numbers in processor_numbers specify which CPUs are allowed to run the
   // thread. processor_numbers should not contain any duplicates and elements
   // should be lower than (number of CPUs - 1). amount_of_processors should be
   // equal to the number of processors listed in processor_numbers.
-  virtual bool SetAffinity(const int* processor_numbers,
+  virtual bool setAffinity(const int* processor_numbers,
                            const unsigned int amount_of_processors) {
     return false;
   }
@@ -69,13 +70,13 @@ public:
   // of two seconds. Will return false if the thread was not reclaimed.
   // Multiple tries to Stop are allowed (e.g. to wait longer than 2 seconds).
   // It's ok to call Stop() even if the spawned thread has been reclaimed.
-  virtual bool Stop() = 0;
+  virtual bool stop() = 0;
   //INFINITE
-  virtual bool WaitFor(unsigned int ms=TOOL_EVENT_INFINITE) = 0;
+  virtual bool waitFor(unsigned int ms=TOOL_EVENT_INFINITE) = 0;
 
-  virtual bool Terminate(unsigned long ecode) = 0;
+  virtual bool terminate(unsigned long ecode) = 0;
 
-  void SetCallBack(ONTHREADSTART start,ONTHREADEND end){m_funStart=start;m_funEnd=end;}
+  void setCallBack(ONTHREADSTART start,ONTHREADEND end){m_funStart=start;m_funEnd=end;}
 public:
 	ONTHREADSTART m_funStart;
 	ONTHREADEND    m_funEnd;

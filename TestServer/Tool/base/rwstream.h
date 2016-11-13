@@ -29,10 +29,10 @@ namespace Tool
 		virtual bool isEnd() const= 0;
 		virtual bool skip(int offset,bool peek=true)=0;
 
-		bool Read(/* out */ int & i);
-		bool Read(/* out */ short & i);
-		bool Read(/* out */ char & c);
-		bool Read(/* out */ char* str,/* in */  unsigned int strlen, /* out */ unsigned int & len);
+		bool read(/* out */ int & i);
+		bool read(/* out */ short & i);
+		bool read(/* out */ char & c);
+		bool read(/* out */ char* str,/* in */  unsigned int strlen, /* out */ unsigned int & len);
 		unsigned int readAll(/* out */ char * szBuffer, /*in*/unsigned int iLen);
 	private:
 		bool readLength(unsigned int & len);
@@ -48,11 +48,11 @@ namespace Tool
 	public:
 		WriteStream(PACKAGELEN_TYPE htype_=BINARY_PACKLEN_LEN,bool net_=true):htype(htype_),net(net_){}
 		virtual ~WriteStream(){}
-		bool Write(const char* str, unsigned int length);
+		bool write(const char* str, unsigned int length);
 		bool writeWithoutLength(const char* str, unsigned int length);
-		bool Write(int i);
-		bool Write(short i);
-		bool Write(char c);
+		bool write(int i);
+		bool write(short i);
+		bool write(char c);
 		bool writeLength(unsigned int len);
 
 		virtual bool writeCom(const void* buffer,unsigned int len_to_write,unsigned int* len_writed) = 0;

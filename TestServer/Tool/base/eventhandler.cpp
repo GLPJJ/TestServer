@@ -5,43 +5,43 @@ namespace Tool
 {
 	int TMEventHandler::registerTimer(time_t to)
 	{
-		return GetReactor()->registerTimer(this,to);
+		return getReactor()->registerTimer(this,to);
 	}
 	int TMEventHandler::unRegisterTimer()
 	{
-		return GetReactor()->unRegisterTimer(this);
+		return getReactor()->unRegisterTimer(this);
 	}
 	void TMEventHandler::close()
 	{
-		GetReactor()->unRegisterTimer(this);
+		unRegisterTimer();
 	}
 	int IdleEventHandler::registerIdle()
 	{
-		return GetReactor()->registerIdle(this);
+		return getReactor()->registerIdle(this);
 	}
 	int IdleEventHandler::unRegisterIdle()
 	{
-		return GetReactor()->unRegisterIdle(this);
+		return getReactor()->unRegisterIdle(this);
 	}
 	void IdleEventHandler::close()
 	{
-		GetReactor()->unRegisterIdle(this);
+		unRegisterIdle();
 	}
 	int FDEventHandler::registerRead()
 	{
-		return GetReactor()->registerReadEvent(this);
+		return getReactor()->registerReadEvent(this);
 	}
 	int FDEventHandler::registerWrite()
 	{
-		return GetReactor()->registerWriteEvent(this);
+		return getReactor()->registerWriteEvent(this);
 	}
 	int FDEventHandler::unRegisterRead()
 	{
-		return GetReactor()->unRegisterReadEvent(this);
+		return getReactor()->unRegisterReadEvent(this);
 	}
 	int FDEventHandler::unRegisterWrite()
 	{
-		return GetReactor()->unRegisterWriteEvent(this);
+		return getReactor()->unRegisterWriteEvent(this);
 	}
 	//设置非阻塞 socket
 	int FDEventHandler::setNonBlocking()
@@ -64,7 +64,8 @@ namespace Tool
 	}
 	void FDEventHandler::close()
 	{
-		GetReactor()->unRegisterEvent(this);
+
+		getReactor()->unRegisterEvent(this);
 		m_fd = INVALID_SOCKET;
 	}
 	void FDEventHandler::closeSocket()

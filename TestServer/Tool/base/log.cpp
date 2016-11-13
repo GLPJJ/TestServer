@@ -1,4 +1,5 @@
-#include "../Tool.h"
+#include "log.h"
+#include <time.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -66,14 +67,17 @@ namespace Tool{
 	{
 		if (pszLog == NULL)
 			return;
-		char log[65525] = { 0 };
+
+		static char log[65535] = { 0 };
 
 		va_list args;
 		va_start(args,pszLog);
 		vsprintf(log, pszLog, args);
+
+		//strcat(log,"\n");
 		if(g_hStdOut != NULL)
 			WriteConsoleA(g_hStdOut, log, strlen(log), NULL, NULL);
-		OutputDebugStringA(log);
+		//OutputDebugStringA(log);
 		va_end(pszLog);
 	}
 

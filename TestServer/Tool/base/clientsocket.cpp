@@ -1,5 +1,4 @@
-﻿//#include "../Tool.h"
-#include "clientsocket.h"
+﻿#include "clientsocket.h"
 #include "dataprocess.h"
 #include "log.h"
 
@@ -186,16 +185,17 @@ namespace Tool
 /////////////////////////ClientSocket 实现/////////////////////////////////////////////////
 	void ClientSocket::onTimeOut()
 	{
-		//m_isWaitingConnectComplete = false;
 		switch(m_waitType){
 			case wait_for_connect:
 				{
+					Log("客户端连接超时... fd=%d",m_fd);
 					onSocketConnectTimeout();
 					ClientSocketBase::close();
 					break;
 				}
 			case wait_for_write:
 				{
+					Log("客户端写socket超时... fd=%d",m_fd);
 					break;
 				}
 				
@@ -225,6 +225,8 @@ namespace Tool
 			ClientSocketBase::onFDWrite();
 			return;
 		}
+
+		Log("客户端连接服务器成功 fd=%d\n",m_fd);
 		//如果是第一次回调，则说明网络描述符可用了
 		m_isConnected = true;
 		m_waitType = wait_for_none;
@@ -236,7 +238,7 @@ namespace Tool
 			registerRead();
 	}
 
-	int ClientSocket::Connect(const char* host,short port,int to)
+	int ClientSocket::connect(const char* host,short port,int to)
 	{
 		//已经连接，或者正在连接
 		if (m_isConnected || m_waitType == wait_for_connect)
@@ -253,28 +255,18 @@ namespace Tool
 		clientService.sin_family = AF_INET;
 		clientService.sin_addr.s_addr = inet_addr(host);
 		clientService.sin_port = htons(port);
-		//设置地址复用
-//#ifdef WIN32
-//		BOOL bReuseaddr = TRUE;
-//		if(setsockopt( m_fd, SOL_SOCKET, SO_REUSEADDR, ( const char* )&bReuseaddr, sizeof( BOOL ) ) == SOCKET_ERROR )
-//#else
-//		int on=1;
-//		if(setsockopt(m_fd,SOL_SOCKET,SO_REUSEADDR,&on,sizeof(on))==SOCKET_ERROR)
-//#endif
-//		{
-//			return -1;
-//		}
+
 		//设置非阻塞
 		if (setNonBlocking() != 0)
 			return -1;
 
 		int errorCode;
 #ifdef WIN32
-		if (connect(m_fd, (struct sockaddr*)&clientService, sizeof(clientService)) == SOCKET_ERROR 
+		if (::connect(m_fd, (struct sockaddr*)&clientService, sizeof(clientService)) == SOCKET_ERROR 
 			&& !(((errorCode = WSAGetLastError()) == WSAEWOULDBLOCK) || (errorCode==WSAEINPROGRESS)))
 		{
 #else
-		if(connect(m_fd, (struct sockaddr*)&clientService, sizeof(clientService)) == -1 
+		if(::connect(m_fd, (struct sockaddr*)&clientService, sizeof(clientService)) == -1 
 			&& !(((errorCode=errno) == EAGAIN) || (errorCode == EINPROGRESS)))
 		{
 #endif
@@ -283,7 +275,7 @@ namespace Tool
 			return -1;
 		}
 
-		//LOGI("%s : RegisterWrite wait for connected %d\n",__FUNCTION__,m_fd);
+		Log("客户端等待服务器连接 fd=%d\n",m_fd);
 		//如果为connect 返回-1 并且errorno为 EAGAIN
 		m_waitType = wait_for_connect;
 		registerWrite();//注册到写fd_set中 等待 OnFDWrite回调，第一次的话就说明这个fd可用了。
@@ -292,12 +284,12 @@ namespace Tool
 		return 0;
 	}
 
-	bool ClientSocket::SendBuf(BinaryWriteStream &stream)
+	bool ClientSocket::sendBuf(BinaryWriteStream &stream)
 	{
-		return SendBuf(stream.getData(),stream.getSize());
+		return sendBuf(stream.getData(),stream.getSize());
 	}
 
-	bool ClientSocket::SendBuf(const char* buf,unsigned int buflen)
+	bool ClientSocket::sendBuf(const char* buf,unsigned int buflen)
 	{
 		if(addBuf(buf,buflen) != 0)
 		{

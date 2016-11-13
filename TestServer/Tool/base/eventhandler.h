@@ -31,8 +31,10 @@ namespace Tool
 	public:
 		virtual ~EventHandler(){}
 		EventHandler():m_pReactor(NULL){}
-		void SetReactor(Reactor *pReactor){m_pReactor = pReactor;}
-		Reactor* GetReactor(){return m_pReactor;}
+
+	public:
+		void setReactor(Reactor *pReactor){m_pReactor = pReactor;}
+		Reactor* getReactor(){return m_pReactor;}
 		virtual void close() = 0;
 	protected:
 		Reactor *m_pReactor;
@@ -41,11 +43,10 @@ namespace Tool
 	class IdleEventHandler : virtual public EventHandler
 	{
 	public:
-		IdleEventHandler(Reactor *pReactor)
-		{
-			SetReactor(pReactor);
-		}
+		IdleEventHandler(Reactor *pReactor){setReactor(pReactor);}
 		virtual ~IdleEventHandler(){}
+
+	public:
 		virtual void onRun() = 0;
 		int registerIdle();
 		int unRegisterIdle();
@@ -56,10 +57,13 @@ namespace Tool
 	{
 	public:
 		TMEventHandler():m_id(0){}
-		TMEventHandler(Reactor *pReactor):m_id(0) {SetReactor(pReactor);}
+		TMEventHandler(Reactor *pReactor):m_id(0) {setReactor(pReactor);}
 		virtual ~TMEventHandler() {}
+
+	public:
 		//超时处理函数
 		virtual void onTimeOut() = 0;
+		//定义超时秒数
 		int registerTimer(time_t to);
 		int unRegisterTimer();
 		virtual void close();
@@ -75,7 +79,7 @@ namespace Tool
 	public:
 		virtual ~FDEventHandler() {}
 		FDEventHandler():m_fd(INVALID_SOCKET) {}
-		FDEventHandler(Reactor *pReactor):m_fd(INVALID_SOCKET)  {SetReactor(pReactor);}
+		FDEventHandler(Reactor *pReactor):m_fd(INVALID_SOCKET)  {setReactor(pReactor);}
 		
 		//fd 读的时候 可接受
 		virtual void onFDRead() = 0;
@@ -99,8 +103,8 @@ namespace Tool
 
 		inline void setFD(SOCKET fd) {m_fd = fd;}
 		inline SOCKET getFD() const {return m_fd;}
-		inline void SetClientID(int id){m_id = id;}
-		inline int GetClientID(){return m_id;}
+		inline void setClientID(int id){m_id = id;}
+		inline int getClientID(){return m_id;}
 
 	protected:
 		void closeSocket();

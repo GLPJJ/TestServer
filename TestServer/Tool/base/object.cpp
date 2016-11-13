@@ -1,4 +1,6 @@
-#include "../Tool.h"
+#include "config.h"
+#include "object.h"
+#include "mutex.h"
 #include <malloc.h>
 #include <assert.h>
 #include <string.h>

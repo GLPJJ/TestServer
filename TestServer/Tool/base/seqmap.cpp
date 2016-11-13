@@ -2,6 +2,7 @@
 
 namespace Tool
 {
+	/*
 	template <class T,class Map>
 	void SeqMap<T,Map>::Put(int id,T t) {
 		m_clientmap.insert(std::make_pair(id,t));
@@ -35,4 +36,5 @@ namespace Tool
 	void SeqMap<T,Map>::Clear() { 
 		m_clientmap.clear();
 	}
+	*/
 }

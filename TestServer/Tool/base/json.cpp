@@ -34,7 +34,9 @@
 #define _BSD_SOURCE
 #endif
 
-#include "../Tool.h"
+#include "json.h"
+#include "object.h"
+
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h> /* strtod (C89), strtof (C99) */

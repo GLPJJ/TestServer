@@ -13,7 +13,7 @@ class Event {
 public:
   // Factory method. Constructor disabled.
 	static Event* Create();
-	static void destroy(Event* p);
+	static void Destroy(Event* p);
 
 	virtual ~Event() {}
 
@@ -23,10 +23,10 @@ public:
 	// multithreaded programming.
 	// Set is sticky in the sense that it will release at least one thread
 	// either immediately or some time in the future.
-	virtual bool Set() = 0;
+	virtual bool set() = 0;
 
 	// Prevents future Wait() calls from finishing without a new Set() call.
-	virtual bool Reset() = 0;
+	virtual bool reset() = 0;
 
 	// Puts the calling thread into a wait state. The thread may be released
 	// by a Set() call depending on if other threads are waiting and if so on
@@ -35,14 +35,14 @@ public:
 	// are waiting for the same Set(), only one (random) thread is guaranteed to
 	// be released. It is possible that multiple (random) threads are released
 	// Depending on timing.
-	virtual EventType Wait(unsigned long max_time) = 0;
+	virtual EventType wait(unsigned long max_time) = 0;
 
 	// Starts a timer that will call a non-sticky version of Set() either once
 	// or periodically. If the timer is periodic it ensures that there is no
 	// drift over time relative to the system clock.
-	virtual bool StartTimer(bool periodic, unsigned long time) = 0;
+	virtual bool startTimer(bool periodic, unsigned long time) = 0;
 
-	virtual bool StopTimer() = 0;
+	virtual bool stopTimer() = 0;
 
 };
 

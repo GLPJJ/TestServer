@@ -30,19 +30,19 @@ public:
 
 public:
 //创建线程，指定优先级
-	bool CreateThread(ThreadPriority iPriority = kNormalPriority);
+	bool createThread(ThreadPriority iPriority = kNormalPriority);
 //资源回收
-	bool ReleaseThread();
+	bool releaseThread();
 //投递消息
-	void PostMessageOS( int id, void* pData );
+	void postMessageOS( int id, void* pData );
 //发送消息
-	bool SendMessageOS( int id, void* pData );
+	bool sendMessageOS( int id, void* pData );
 //消息处理
-	virtual void ProcessMessage(int id,void* pData) = 0;
+	virtual void processMessage(int id,void* pData) = 0;
 //空闲处理
-	virtual void ProcessIdle();
+	virtual void processIdle();
 //线程run函数
-	bool Run();
+	bool run();
 protected:
 //线程函数
 	static bool ThreadProc(ThreadObj pData);

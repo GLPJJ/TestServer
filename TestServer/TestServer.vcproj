@@ -585,6 +585,22 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Tool\base\clientdata.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Tool\base\clientdata.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Tool\base\clientsocket.cpp"
 					>
 					<FileConfiguration

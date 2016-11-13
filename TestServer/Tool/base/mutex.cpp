@@ -1,4 +1,5 @@
-﻿#include "../Tool.h"
+﻿#include "mutex.h"
+#include "object.h"
 
 namespace Tool{
 
@@ -50,7 +51,7 @@ Mutex* Mutex::CreateCriticalSection() {
 #endif//_WIN32
 }
 
-void Mutex::destroy(Mutex* p){
+void Mutex::Destroy(Mutex* p){
 	delete_(Mutex,p);
 }
 

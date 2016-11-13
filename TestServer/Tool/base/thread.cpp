@@ -1,4 +1,8 @@
-﻿#include "../Tool.h"
+﻿#include "thread.h"
+#include "mutex.h"
+#include "log.h"
+#include "config.h"
+#include "object.h"
 #include <assert.h>
 
 #ifdef _WIN32
@@ -105,7 +109,7 @@ unsigned int WINAPI ThreadWindows::StartThread(LPVOID lp_parameter) {
 	return 0;
 }
 
-bool ThreadWindows::Start(unsigned int& thread_id) {
+bool ThreadWindows::start(unsigned int& thread_id) {
 	if (!run_function_) {
 		return false;
 	}
@@ -141,7 +145,7 @@ bool ThreadWindows::Start(unsigned int& thread_id) {
 	return true;
 }
 
-bool ThreadWindows::SetAffinity(const int* processor_numbers,const unsigned int amount_of_processors) {
+bool ThreadWindows::setAffinity(const int* processor_numbers,const unsigned int amount_of_processors) {
 	DWORD_PTR processor_bit_mask = 0;
 	for (unsigned int processor_index = 0;processor_index < amount_of_processors
 		;++processor_index) {
@@ -154,25 +158,25 @@ bool ThreadWindows::SetAffinity(const int* processor_numbers,const unsigned int 
 	return SetThreadAffinityMask(thread_, processor_bit_mask) != 0;
 }
 
-void ThreadWindows::SetNotAlive() {
+void ThreadWindows::setNotAlive() {
 	alive_ = false;
 }
 
-bool ThreadWindows::WaitFor(unsigned int ms)
+bool ThreadWindows::waitFor(unsigned int ms)
 {
 	if(thread_&&alive_)
 		return (WAIT_OBJECT_0 == WaitForSingleObject(thread_,ms));
 	return true;
 }
 
-bool ThreadWindows::Terminate(unsigned long ecode)
+bool ThreadWindows::terminate(unsigned long ecode)
 {
 	if(thread_)
 		return !!TerminateThread(thread_,ecode);
 	return true;
 }
 
-bool ThreadWindows::Stop() {
+bool ThreadWindows::stop() {
 	critsect_stop_->enter();
 
 	// Prevents the handle from being closed in ThreadWindows::Run()
@@ -370,7 +374,7 @@ ThreadPosix::~ThreadPosix() {
 
 #define HAS_THREAD_ID !defined(NETUTIL_IOS) && !defined(NETUTIL_MAC)
 
-bool ThreadPosix::Start(unsigned int& thread_id)
+bool ThreadPosix::start(unsigned int& thread_id)
 {
 	int result = pthread_attr_setdetachstate(&attr_, PTHREAD_CREATE_DETACHED);
 	// Set the stack stack size to 1M.
@@ -380,7 +384,7 @@ bool ThreadPosix::Start(unsigned int& thread_id)
 #else
 	const int policy = SCHED_FIFO;
 #endif
-	event_->Reset();
+	event_->reset();
 	// If pthread_create was successful, a thread was created and is running.
 	// Don't return false if it was successful since if there are any other
 	// failures the state will be: thread was started but not configured as
@@ -397,7 +401,7 @@ bool ThreadPosix::Start(unsigned int& thread_id)
 
 	// Wait up to 10 seconds for the OS to call the callback function. Prevents
 	// race condition if Stop() is called too quickly after start.
-	if (kEventSignaled != event_->Wait(TOOL_EVENT_10_SEC)) {
+	if (kEventSignaled != event_->wait(TOOL_EVENT_10_SEC)) {
 		//WEBRTC_TRACE(kTraceError, kTraceUtility, -1,"posix thread event never triggered");
 		// Timed out. Something went wrong.
 		return true;
@@ -430,7 +434,7 @@ bool ThreadPosix::Start(unsigned int& thread_id)
 // CPU_ZERO and CPU_SET are not available in NDK r7, so disable
 // SetAffinity on Android for now.
 #if (defined(NETUTIL_LINUX) && (!defined(NETUTIL_ANDROID)))
-bool ThreadPosix::SetAffinity(const int* processor_numbers,
+bool ThreadPosix::setAffinity(const int* processor_numbers,
 							  const unsigned int amount_of_processors) 
 {
 	  if (!processor_numbers || (amount_of_processors == 0)) {
@@ -460,17 +464,17 @@ bool ThreadPosix::SetAffinity(const int* processor_numbers,
 // NOTE: On Mac OS X, use the Thread affinity API in
 // /usr/include/mach/thread_policy.h: thread_policy_set and mach_thread_self()
 // instead of Linux gettid() syscall.
-bool ThreadPosix::SetAffinity(const int* , const unsigned int) {
+bool ThreadPosix::setAffinity(const int* , const unsigned int) {
 	return false;
 }
 #endif
 
-void ThreadPosix::SetNotAlive() {
+void ThreadPosix::setNotAlive() {
 	MutexScoped cs(crit_state_);
 	alive_ = false;
 }
 
-bool ThreadPosix::Stop() {
+bool ThreadPosix::stop() {
 	bool dead = false;
 	{
 		MutexScoped cs(crit_state_);
@@ -482,7 +486,7 @@ bool ThreadPosix::Stop() {
 	// Wait up to 10 seconds for the thread to terminate
 	if(!dead)
 	{
-		event_->Wait(TOOL_EVENT_10_SEC);
+		event_->wait(TOOL_EVENT_10_SEC);
 		{
 			MutexScoped cs(crit_state_);
 			dead = dead_;
@@ -502,18 +506,18 @@ bool ThreadPosix::Stop() {
 	}
 }
 
-bool ThreadPosix::WaitFor(unsigned int ms)
+bool ThreadPosix::waitFor(unsigned int ms)
 {
 	MutexScoped cs(crit_state_);
 	if(alive_)
-		return (kEventSignaled == event_->Wait(ms));
+		return (kEventSignaled == event_->wait(ms));
 	return true;
 }
 
-bool ThreadPosix::Terminate(unsigned long ecode)
+bool ThreadPosix::terminate(unsigned long ecode)
 {
 	if(alive_)
-		return Stop();
+		return stop();
 	return true;
 }
 
@@ -526,7 +530,7 @@ void ThreadPosix::Run() {
 	pid_ = GetThreadId();
 #endif
 	// The event the Start() is waiting for.
-	event_->Set();
+	event_->set();
 
 	if (set_thread_name_) {
 #ifdef NETUTIL_LINUX
@@ -562,7 +566,7 @@ void ThreadPosix::Run() {
 		dead_ = true;
 	}
 	//inform the stop
-	event_->Set();
+	event_->set();
 }
 #endif
 
@@ -577,7 +581,7 @@ Thread* Thread::CreateThread(ThreadRunFunction func,
 #endif
 }
 
-void Thread::destroy(Thread* p){
+void Thread::Destroy(Thread* p){
 	delete_(Thread,p);
 }
 

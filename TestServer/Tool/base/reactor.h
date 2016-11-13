@@ -20,15 +20,15 @@ namespace Tool
 		Reactor():m_funKeepLive(NULL){}
 		virtual ~Reactor(){}
 		virtual int registerTimer(TMEventHandler *pHandler,time_t to) = 0;
+		virtual int registerIdle(IdleEventHandler *pHandler) = 0;
 		virtual int registerReadEvent(FDEventHandler *pHandler) = 0;
 		virtual int registerWriteEvent(FDEventHandler *pHandler) = 0;
-		virtual int registerIdle(IdleEventHandler *pHandler) = 0;
 
 		virtual int unRegisterTimer(TMEventHandler *pHandler) = 0;
+		virtual int unRegisterIdle(IdleEventHandler *pHandler) = 0;	
 		virtual int unRegisterEvent(FDEventHandler *pHandler) = 0;
 		virtual int unRegisterReadEvent(FDEventHandler *pHandler) = 0;
 		virtual int unRegisterWriteEvent(FDEventHandler *pHandler) = 0;
-		virtual int unRegisterIdle(IdleEventHandler *pHandler) = 0;	
 
 		virtual bool run(){if(m_funKeepLive)m_funKeepLive();return true;}
 		virtual int stop() = 0;
@@ -89,6 +89,9 @@ namespace Tool
 		virtual ~NetRector();
 
 	public:
+		/*
+		@param to:单位，秒
+		*/
 		virtual int registerTimer(TMEventHandler *pHandler,time_t to);
 		virtual int registerReadEvent(FDEventHandler *pHandler);
 		virtual int registerWriteEvent(FDEventHandler *pHandler);
@@ -131,7 +134,7 @@ namespace Tool
 		virtual bool run();
 
 	private:
-		ClientMap mClientMap;
+		
 	};
 }
 #endif//GLP_REACTOR_H_

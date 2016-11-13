@@ -1,8 +1,9 @@
-#include "../Tool.h"
+#include "rwstream.h"
+#include "log.h"
 #include <math.h>
 
 #ifdef WIN32
-//#include <WinSock2.h>
+#include <WinSock2.h>
 #else
 #include "unistd.h"
 #include "sys/socket.h"
@@ -20,7 +21,7 @@
 namespace Tool
 {
 	////////////////////////////////read operation//////////////////////////////////////////
-	bool ReadStream::Read(/* out */ int & i)
+	bool ReadStream::read(/* out */ int & i)
 	{
 		static const int VALUE_SIZE = sizeof(int);
 		LOGI("%s short = %d\n",__FUNCTION__,VALUE_SIZE);
@@ -31,7 +32,7 @@ namespace Tool
 			i = ntohl(i);
 		return skip(VALUE_SIZE,false);
 	}
-	bool ReadStream::Read(/* out */ short & i)
+	bool ReadStream::read(/* out */ short & i)
 	{
 		static const int VALUE_SIZE = sizeof(short);
 		LOGI("%s short = %d\n",__FUNCTION__,VALUE_SIZE);
@@ -42,7 +43,7 @@ namespace Tool
 			i = ntohs(i);
 		return skip(VALUE_SIZE,false);
 	}
-	bool ReadStream::Read(/* out */ char & c)
+	bool ReadStream::read(/* out */ char & c)
 	{
 		static const int VALUE_SIZE = sizeof(char);
 		LOGI("%s short = %d\n",__FUNCTION__,VALUE_SIZE);
@@ -101,7 +102,7 @@ namespace Tool
 		memcpy(szBuffer, getData(), minLen);
 		return minLen;
 	}
-	bool ReadStream::Read(char* str, unsigned int strlen, /* out */ unsigned int& outlen)
+	bool ReadStream::read(char* str, unsigned int strlen, /* out */ unsigned int& outlen)
 	{
 		if(!str || !strlen)
 			return false;
@@ -169,7 +170,7 @@ namespace Tool
 	{
 		skip((int)htype,false);
 	}
-	bool WriteStream::Write(const char* str, unsigned int length)
+	bool WriteStream::write(const char* str, unsigned int length)
 	{
 		if(!skip(length+(int)htype))
 			return false;
@@ -182,7 +183,7 @@ namespace Tool
 			return false;
 		return skip(length,false);
 	} 
-	bool WriteStream::Write(int i)
+	bool WriteStream::write(int i)
 	{
 		if(net)
 			i = htonl(i);
@@ -192,7 +193,7 @@ namespace Tool
 			return false;
 		return skip(offset,false);
 	}
-	bool WriteStream::Write(short i)
+	bool WriteStream::write(short i)
 	{
 		if(net)
 			i = htons(i);
@@ -202,7 +203,7 @@ namespace Tool
 			return false;
 		return skip(offset,false);
 	}
-	bool WriteStream::Write(char c)
+	bool WriteStream::write(char c)
 	{
 		static const int offset = sizeof(c);
 		LOGI("%s char sizeof = %d\n",__FUNCTION__,offset);

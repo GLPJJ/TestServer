@@ -4,7 +4,14 @@
  *  Created on: 2014-5-21
  *      Author: glp
  */
+#include "httpdownload.h"
+#include "httpcontent.h"
+#include "httpdownloadmgr.h"
+#include "../algorithms/algorithms.h"
+#include "log.h"
+#include "file.h"
 
+#include <assert.h>
 
 #ifdef WIN32
 #define R_OK  4  /* Read */
@@ -18,8 +25,6 @@
 #include <unistd.h>
 #include <ctype.h>
 #endif
-#include "../Tool.h"
-#include <assert.h>
 
 #ifndef max
 #define max(a,b) (((a) > (b)) ? (a) : (b))
@@ -264,7 +269,7 @@ bool CHttpDownload::startDownload()
 	if(!m_isNeedSaveData)
 		return false;
 
-	if(Connect(m_sIp,m_nPort) == 0)
+	if(connect(m_sIp,m_nPort) == 0)
 	{
 		m_gDownloadState.state = DownloadState::DS_BUSY;
 		//计时开始
@@ -372,7 +377,7 @@ bool CHttpDownload::onSocketConnect()
 			m_sHost,m_nFrom,0,m_sPostData,m_nPostDataLen);
 
 	//发送请求
-	return SendBuf(m_sRequestHeader,len);
+	return sendBuf(m_sRequestHeader,len);
 }
 void CHttpDownload::onSocketConnectTimeout()
 {

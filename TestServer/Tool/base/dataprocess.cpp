@@ -1,4 +1,7 @@
-﻿#include "../Tool.h"
+﻿#include "dataprocess.h"
+#include "datablock.h"
+#include "package.h"
+#include "clientsocket.h"
 
 #ifdef WIN32
 	#include <winsock2.h>
@@ -12,7 +15,7 @@
 
 namespace Tool
 {
-	unsigned int DataProcess::GetBuflen(char *buf)
+	unsigned int DataProcess::getBuflen(char *buf)
 	{
 		if(m_pttype == PROTOCOLTYPE_BINARY)
 		{
@@ -54,7 +57,7 @@ namespace Tool
 			if( (unsigned int)(buf + pos - ptr) <= (unsigned int)m_hdlen)
 				break;
 			//取包头长度
-			unsigned int buflen = GetBuflen(ptr);
+			unsigned int buflen = getBuflen(ptr);
 			if(buflen == 0)//异常数据
 			{
 				recvdb->initPos();

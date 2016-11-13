@@ -9,10 +9,10 @@ public:
 	Timer();                                    // default constructor
 	~Timer();                                   // default destructor
 
-	void		start();                             // start timer
-	void		start2();							// cur_startCount
-	void		stop();                              // stop the timer
-	void		stop2();							// cur_endCount
+	void	start();                             // start timer
+	void	start2();							// cur_startCount
+	void	stop();                              // stop the timer
+	void	stop2();							// cur_endCount
 	double getElapsedTime();                    // get elapsed time in second
 	double getElapsedTimeInSec();               // get elapsed time in second (same as getElapsedTime)
 	double getElapsedTimeInMilliSec();          // get elapsed time in milli-second

@@ -22,13 +22,13 @@ class ThreadPosix : public Thread
   ~ThreadPosix();
 
   // From Thread.
-  virtual void SetNotAlive();
-  virtual bool Start(unsigned int& id);
+  virtual void setNotAlive();
+  virtual bool start(unsigned int& id);
   // Not implemented on Mac.
-  virtual bool SetAffinity(const int* processor_numbers,unsigned int amount_of_processors);
-  virtual bool Stop();
-  virtual bool WaitFor(unsigned int ms=TOOL_EVENT_INFINITE);
-  virtual bool Terminate(unsigned long ecode);
+  virtual bool setAffinity(const int* processor_numbers,unsigned int amount_of_processors);
+  virtual bool stop();
+  virtual bool waitFor(unsigned int ms=TOOL_EVENT_INFINITE);
+  virtual bool terminate(unsigned long ecode);
 
   void Run();
 

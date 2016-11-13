@@ -28,7 +28,7 @@ namespace Tool
 	public:
 		virtual void onFDWrite(){}
 		virtual int Init();
-		short Getport(){return m_port;}
+		short getport(){return m_port;}
 
 	private:
 		short m_port;
@@ -108,14 +108,14 @@ namespace Tool
 		virtual void onTimeOut();
 		virtual void close();
 
-		int Connect(const char* host,short port,int to = 10);
-		bool IsConnect(){return m_isConnected;}
+		int connect(const char* host,short port,int to = 10);
+		bool isConnect(){return m_isConnected;}
 		//添加的sendbuf中，并注册到写fd_set中
-		bool SendBuf(BinaryWriteStream &stream);
-		bool SendBuf(const char* buf,unsigned int buflen);
+		bool sendBuf(BinaryWriteStream &stream);
+		bool sendBuf(const char* buf,unsigned int buflen);
 
-		inline const char* Gethost(){return m_host;}
-		inline short Getport(){return m_port;}
+		inline const char* gethost(){return m_host;}
+		inline short getport(){return m_port;}
 	public:
 		virtual bool onSocketConnect() {return true;} 
 		virtual void onSocketConnectTimeout() {}

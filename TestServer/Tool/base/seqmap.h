@@ -19,21 +19,29 @@ namespace Tool
 	public:
 		virtual ~SeqMap(){}
 
-		void Put(int id,T t);// {m_clientmap.insert(std::make_pair(id,t));}
-		void Cover(int id,T t);// {m_clientmap[id] = t;}
-		T* Get(int id);
-// 		{
-// 			typename _MapT::iterator it;
-// 			it = m_clientmap.find(id);
-// 			if(it == m_clientmap.end())
-// 				return NULL;
-// 			return &(it->second);
-// 		}
-		void Del (int id);// {m_clientmap.erase(id);}
-		unsigned int Size();// {return m_clientmap.size();}
-		void Clear();// { m_clientmap.clear();}
+		bool put(int id,T t)
+		{
+			if(m_clientmap.find(id)==m_clientmap.end())
+			{
+				m_clientmap.insert(std::make_pair(id,t));
+				return true;
+			}
+			return false;
+		}
+		void cover(int id,T t){m_clientmap[id] = t;}
+		T* get(int id)
+		{
+			typename Map::iterator it;
+			it = m_clientmap.find(id);
+			if(it == m_clientmap.end())
+				return NULL;
+			return &(it->second);
+		}
+		void del (int id) {m_clientmap.erase(id);}
+		unsigned int size() {return m_clientmap.size();}
+		void clear() { m_clientmap.clear();}
 
-		seq_map_type* GetMap(){return &m_clientmap;}
+		seq_map_type* getMap(){return &m_clientmap;}
 	private:
 		seq_map_type m_clientmap;
 	};

@@ -1,4 +1,4 @@
-﻿#include "../Tool.h"
+﻿#include "timer.h"
 #include <stdlib.h>
 
 #ifdef _WIN32   // Windows system specific

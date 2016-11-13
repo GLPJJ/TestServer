@@ -1,4 +1,7 @@
-﻿#include "../Tool.h"
+﻿#include "thread_mgr.h"
+#include "mutex.h"
+#include "event.h"
+#include "log.h"
 
 namespace Tool{
 
@@ -14,12 +17,12 @@ ThreadMgr::ThreadMgr(void)
 
 ThreadMgr::~ThreadMgr(void)
 {
-	Thread::destroy(m_pObjectThread);
-	Event::destroy(m_pObjectEvent);
-	Mutex::destroy(m_pObjectCS);
+	Thread::Destroy(m_pObjectThread);
+	Event::Destroy(m_pObjectEvent);
+	Mutex::Destroy(m_pObjectCS);
 }
 
-bool ThreadMgr::CreateThread( ThreadPriority iPriority )
+bool ThreadMgr::createThread( ThreadPriority iPriority )
 {
 	if(m_pObjectThread)
 		return true;
@@ -28,22 +31,22 @@ bool ThreadMgr::CreateThread( ThreadPriority iPriority )
 	if(!m_pObjectThread)
 		return false;
 	unsigned int thread_id;
-	if(!m_pObjectThread->Start(thread_id))
+	if(!m_pObjectThread->start(thread_id))
 	{
 		return false;
 	}
 	return true;
 }
 
-bool ThreadMgr::ReleaseThread()
+bool ThreadMgr::releaseThread()
 {
 	m_bStop = true;
 	if(m_pObjectThread)
-		m_pObjectThread->Stop();
+		m_pObjectThread->stop();
 	return true;
 }
 
-void ThreadMgr::PostMessageOS( int id, void* pData )
+void ThreadMgr::postMessageOS( int id, void* pData )
 {
 	_tMsg msg = { false, id, pData };
 	
@@ -53,7 +56,7 @@ void ThreadMgr::PostMessageOS( int id, void* pData )
 	}
 }
 
-bool ThreadMgr::SendMessageOS( int id, void* pData )
+bool ThreadMgr::sendMessageOS( int id, void* pData )
 {
 	_tMsg msg = { true, id, pData };
 
@@ -63,7 +66,7 @@ bool ThreadMgr::SendMessageOS( int id, void* pData )
 	}
 	
 
-	if(m_pObjectEvent->Wait(TOOL_EVENT_INFINITE) == kEventSignaled)
+	if(m_pObjectEvent->wait(TOOL_EVENT_INFINITE) == kEventSignaled)
 	{
 		return true;
 	}
@@ -71,7 +74,7 @@ bool ThreadMgr::SendMessageOS( int id, void* pData )
 	return false;
 }
 
-void ThreadMgr::ProcessIdle()
+void ThreadMgr::processIdle()
 {
 	SleepMs(50);
 }
@@ -79,10 +82,10 @@ void ThreadMgr::ProcessIdle()
 bool ThreadMgr::ThreadProc(ThreadObj pData)
 {
 	ThreadMgr * pThis = static_cast<ThreadMgr *>(pData);
-	return pThis->Run();
+	return pThis->run();
 }
 
-bool ThreadMgr::Run()
+bool ThreadMgr::run()
 {
 	while ( !m_bStop )
 	{
@@ -102,13 +105,13 @@ bool ThreadMgr::Run()
 		
 		if ( !bIsEmpty && msg.id != MSG_INVALID )//如果不为空，并且消息不为MSG_INVALID,
 		{
-			ProcessMessage(msg.id,msg.pData);
+			processMessage(msg.id,msg.pData);
 			if ( msg.isSend )
-				m_pObjectEvent->Set();
+				m_pObjectEvent->set();
 		}
 		else//空闲处理
 		{
-			ProcessIdle();
+			processIdle();
 		}
 	}
 

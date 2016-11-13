@@ -2,14 +2,12 @@
 #define GLP_SERVERSOCKET_H_
 
 #include "eventhandler.h"
-#include "seqmap.h"
-#include "clientsocket.h"
+#include "clientdata.h"
 
 namespace Tool{
 	class DataProcessBase;
 	class Reactor;
 	class Counter;
-	typedef SeqMap<ClientSocket> ClientMap;
 
 	class ListenSocketBase : public FDEventHandler
 	{
@@ -21,35 +19,34 @@ namespace Tool{
 				  if(m_timeout > 2100)
 					  m_timeout = 2100;
 		  }
-		  virtual ~ListenSocketBase(){}
+		virtual ~ListenSocketBase(){}
 
-		  int Listen();
-		  virtual void OnFDRead();
-		  virtual void OnAccept(int fd) = 0;
-		  virtual void OnFDWrite(){}
+		int listen();
+		virtual void onFDRead();
+		virtual void onAccept(int fd,sockaddr* addr) = 0;
+		virtual void onFDWrite(){}
 		  
+	public:
+		virtual void onAcceptError(int code) = 0;
 	protected:
 		int m_port;
 		int m_timeout;
 	};
 
-	/*
+	
 	class ListenSocketBase2 : public ListenSocketBase
 	{
 	public:
-		ListenSocketBase2(int port,Reactor *pReactor,Counter *pCounter
-			,DataProcessBase *pDecoder,ClientMap *pClientMap,int timeout = 3) 
+		ListenSocketBase2(int port,Reactor *pReactor,int timeout = 3) 
 			: ListenSocketBase(port,pReactor,timeout)
-			,m_pCounter(pCounter)
-			,m_pDecoder(pDecoder)
-			,m_pClientMap(pClientMap){
-		  }
-		  virtual void OnAccept(int fd);
-		  virtual ClientSocket* CreateClient() = 0;
+		{}
+		virtual ~ListenSocketBase2();
+
+		virtual void onAccept(int fd,sockaddr* addr);
+		virtual void onAcceptError(int code);
+
 	private:
-		Counter *m_pCounter;
-		DataProcessBase *m_pDecoder;
-		ClientMap *m_pClientMap;
+		ClientDataMap m_pClientMap;
 	};
 
 	/*

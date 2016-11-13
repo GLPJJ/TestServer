@@ -12,12 +12,12 @@ class EventWindows : public Event {
   virtual ~EventWindows();
 
   //miro second
-  virtual EventType Wait(unsigned long max_time);
-  virtual bool Set();
-  virtual bool Reset();
+  virtual EventType wait(unsigned long max_time);
+  virtual bool set();
+  virtual bool reset();
 
-  virtual bool StartTimer(bool periodic, unsigned long time);
-  virtual bool StopTimer();
+  virtual bool startTimer(bool periodic, unsigned long time);
+  virtual bool stopTimer();
 
  private:
   HANDLE  event_;

@@ -1,4 +1,5 @@
-﻿#include "../Tool.h"
+﻿#include "object.h"
+#include "datablock.h"
 #include <string.h>
 
 namespace Tool

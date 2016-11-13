@@ -66,6 +66,68 @@ public:
 	}
 };
 
+#include "winsock2.h"
+
+static int count = 0;
+class LogTimer : public TMEventHandler
+{
+public:
+	LogTimer(Reactor* reactor):TMEventHandler(reactor){}
+
+	virtual void onTimeOut()
+	{
+		int ys = count % 3;
+		if(ys == 0)
+			Log("\r监听客户端连接。");
+		else if(ys == 1)
+			Log("\r监听客户端连接。。");
+		else if(ys == 2)
+			Log("\r监听客户端连接。。。");
+		count ++;
+	}
+};
+
+
+bool ServerSocketFunc(ThreadObj obj)
+{
+	WSADATA wsaData;
+
+	//-----------------------------------------------
+	// Initialize Winsock
+	WSAStartup(MAKEWORD(2,2), &wsaData);
+
+	NetServerReactor reactor;
+	ListenSocketBase2 listenSock(9800,&reactor);
+	listenSock.listen();
+	LogTimer logTimer(&reactor);
+	logTimer.registerTimer(1);
+
+	reactor.run();
+
+	WSACleanup();
+
+	return false;
+}
+
+bool ClientSocketFunc(ThreadObj obj)
+{
+	WSADATA wsaData;
+
+	//-----------------------------------------------
+	// Initialize Winsock
+	WSAStartup(MAKEWORD(2,2), &wsaData);
+
+	NetClientReactor reactor;
+	ClientSocket clientSock(&reactor);
+	clientSock.connect("127.0.0.1",9800);
+
+	reactor.run();
+
+	WSACleanup();
+
+	return false;
+}
+
 // CTestServerApp 初始化
 
 BOOL CTestServerApp::InitInstance()
@@ -97,7 +159,8 @@ BOOL CTestServerApp::InitInstance()
 
 	Log("I'm GLP\n");
 
-	TestCls* pT1 = (TestCls*)Tool::Allocator::GetInstance()->alloc(sizeof(TestCls));
+	TestCls* pT1 = (TestCls*)calloc_(sizeof(TestCls));
+	free_(pT1);
 	//pT1->TestCls();//构造函数的使用不可以这样
 	Log("***************** 1 *******************\n");
  	new_(TestCls,pT2);
@@ -106,6 +169,13 @@ BOOL CTestServerApp::InitInstance()
   	delete_(TestCls,pT2);
   	delete_(TestCls1,pT3);
 	Log("***************** 2 *******************\n");
+
+	unsigned int tid;
+	Thread* server = Thread::CreateThread(ServerSocketFunc,this);
+	server->start(tid);
+
+// 	Thread* client = Thread::CreateThread(ClientSocketFunc,this);
+// 	client->start(tid);
 
 	CTestServerDlg dlg;
 	m_pMainWnd = &dlg;
