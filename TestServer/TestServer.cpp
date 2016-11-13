@@ -170,7 +170,7 @@ BOOL CTestServerApp::InitInstance()
   	delete_(TestCls1,pT3);
 	Log("***************** 2 *******************\n");
 
-	unsigned int tid;
+	unsigned int tid;//11
 	Thread* server = Thread::CreateThread(ServerSocketFunc,this);
 	server->start(tid);
 
