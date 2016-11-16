@@ -41,6 +41,8 @@ CHttpDownloadMgr::~CHttpDownloadMgr() {
 		if(m_gHttpDownload[i])
 			delete m_gHttpDownload[i];
 	}
+
+	Mutex::Destroy(m_pCS);
 }
 
 bool CHttpDownloadMgr::HttpDownload(ThreadObj pParam)

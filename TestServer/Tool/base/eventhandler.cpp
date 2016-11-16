@@ -64,7 +64,6 @@ namespace Tool
 	}
 	void FDEventHandler::close()
 	{
-
 		getReactor()->unRegisterEvent(this);
 		m_fd = INVALID_SOCKET;
 	}

@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+#include "vld.h"
 #include "TestServer.h"
 #include "TestServerDlg.h"
 
@@ -78,7 +79,7 @@ public:
 	{
 		int ys = count % 3;
 		if(ys == 0)
-			Log("\r监听客户端连接。");
+			Log("\n\r监听客户端连接。");
 		else if(ys == 1)
 			Log("\r监听客户端连接。。");
 		else if(ys == 2)
@@ -87,7 +88,26 @@ public:
 	}
 };
 
+class ServerDataProcess : public DataProcess
+{
+public:
+	ServerDataProcess(StreamType pttype,HeadType hdlen)
+		:DataProcess(pttype,hdlen){}
 
+	virtual int onPackage(ClientSocketBase *pClient,Package* package)
+	{
+		BinaryReadStream brs(package);
+		
+		char buf[100] = {0};
+		size_t len = sizeof(buf);
+		brs.read(buf,len,len);
+		Log("收到来自(%s)的内容[len=%d] : %s\n",pClient->getPeerIp(),len,buf);
+
+		return 0;
+	}
+};
+
+static NetServerReactor serverReactor;
 bool ServerSocketFunc(ThreadObj obj)
 {
 	WSADATA wsaData;
@@ -96,19 +116,64 @@ bool ServerSocketFunc(ThreadObj obj)
 	// Initialize Winsock
 	WSAStartup(MAKEWORD(2,2), &wsaData);
 
-	NetServerReactor reactor;
-	ListenSocketBase2 listenSock(9800,&reactor);
+	ServerDataProcess process(PROTOCOLTYPE_BINARY,HEADER_LEN_2);
+	ListenSocketBase2 listenSock(9800,&serverReactor,&process);
 	listenSock.listen();
-	LogTimer logTimer(&reactor);
-	logTimer.registerTimer(1);
+	LogTimer logTimer(&serverReactor);
+	logTimer.registerTimer(3);
 
-	reactor.run();
+	serverReactor.run();
 
 	WSACleanup();
 
 	return false;
 }
 
+class TestClientSocket : public ClientSocket
+{
+public:
+	TestClientSocket(Reactor *pReactor):ClientSocket(pReactor){}
+
+	// 连接成功
+	virtual bool onSocketConnect() {
+		Log("%s\n",__FUNCTION__);
+
+		char sendbuf[] = "你好，我是张欣怡";
+
+		BinaryWriteStreamT<> bws;
+		bws.write(sendbuf,sizeof(sendbuf));
+		bws.flush();
+
+		Log("send server data(len=%d):%s\n",sizeof(sendbuf),sendbuf);
+		sendBuf(bws);
+		return true;
+	} 
+	// 连接超时
+	virtual void onSocketConnectTimeout() {
+		Log("%s\n",__FUNCTION__);
+	}
+	// 正常关闭(被动关闭),recv == 0的情况
+	virtual void onSocketClose() {
+		Log("%s\n",__FUNCTION__);
+	}
+	// errcode为错误码(socket提供)
+	virtual void onSocketConnectError(int errCode) {
+		Log("%s,error code = %d\n",__FUNCTION__,errCode);
+	}
+	virtual void onSocketRecvError(int errCode) {
+		Log("%s,error code = %d\n",__FUNCTION__,errCode);
+	}
+	virtual void onSocketSendError(int errCode) {
+		Log("%s,error code = %d\n",__FUNCTION__,errCode);
+	}
+	// 网络层错误(errCode网络层定义)
+	virtual void onNetLevelError(int errCode) {
+		Log("%s,error code = %d\n",__FUNCTION__,errCode);
+	}
+};
+
+static NetClientReactor clientReactor;
+TestClientSocket clientSock(&clientReactor);
 bool ClientSocketFunc(ThreadObj obj)
 {
 	WSADATA wsaData;
@@ -117,16 +182,16 @@ bool ClientSocketFunc(ThreadObj obj)
 	// Initialize Winsock
 	WSAStartup(MAKEWORD(2,2), &wsaData);
 
-	NetClientReactor reactor;
-	ClientSocket clientSock(&reactor);
 	clientSock.connect("127.0.0.1",9800);
 
-	reactor.run();
+	clientReactor.run();
 
 	WSACleanup();
 
 	return false;
 }
+
+#define GLP_SERVER 1
 
 // CTestServerApp 初始化
 
@@ -171,11 +236,13 @@ BOOL CTestServerApp::InitInstance()
 	Log("***************** 2 *******************\n");
 
 	size_t tid;//11
+#if GLP_SERVER
 	Thread* server = Thread::CreateThread(ServerSocketFunc,this);
 	server->start(tid);
-
-// 	Thread* client = Thread::CreateThread(ClientSocketFunc,this);
-// 	client->start(tid);
+#else
+	Thread* client = Thread::CreateThread(ClientSocketFunc,this);
+	client->start(tid);
+#endif
 
 	CTestServerDlg dlg;
 	m_pMainWnd = &dlg;
@@ -190,6 +257,17 @@ BOOL CTestServerApp::InitInstance()
 		// TODO: 在此放置处理何时用“取消”来关闭
 		//  对话框的代码
 	}
+
+	serverReactor.stop();
+	clientReactor.stop();
+
+#if GLP_SERVER
+	server->stop();
+	Thread::Destroy(server);
+#else
+	client->stop();
+	Thread::Destroy(client);
+#endif
 
 	// 由于对话框已关闭，所以将返回 FALSE 以便退出应用程序，
 	//  而不是启动应用程序的消息泵。

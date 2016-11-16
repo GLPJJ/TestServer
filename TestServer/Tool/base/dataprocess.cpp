@@ -15,7 +15,7 @@
 
 namespace Tool
 {
-	size_t DataProcess::getBuflen(char *buf)
+	size_t DataProcess::getBuflen(const char *buf)
 	{
 		if(m_pttype == PROTOCOLTYPE_BINARY)
 		{
@@ -48,7 +48,7 @@ namespace Tool
 	{
 		DataBlock *recvdb = pClient->getRB();
 		char *buf = recvdb->getBuf();
-		char *ptr = buf;
+		const char *ptr = buf;
 		size_t pos = recvdb->getPos();
 
 		while(true)
@@ -69,7 +69,7 @@ namespace Tool
 
 			//获取到一个完整包，解析包
 			
-			if(onPackage(pClient,&Package(ptr,buflen)) != 0)
+			if(onPackage(pClient,&Package(m_hdlen,ptr,buflen)) != 0)
 			{
 				//解析失败
 				recvdb->initPos();

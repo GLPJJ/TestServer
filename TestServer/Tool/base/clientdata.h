@@ -5,14 +5,14 @@
 
 namespace Tool
 {
-	class ClientDataBase{
-	public:
-		int fd;
-		int uid;
-		sockaddr addr;
-	};
-
-	typedef SeqMap<ClientDataBase*> ClientDataMap;
+// 	class ClientDataBase{
+// 	public:
+// 		int fd;
+// 		int uid;
+// 		sockaddr addr;
+// 	};
+// 
+// 	typedef SeqMap<ClientDataBase*> ClientDataMap;
 }
 
 #endif//GLP_CLIENTDATA_H_

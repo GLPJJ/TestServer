@@ -12,4 +12,20 @@
 M_TypeName(const M_TypeName&); \
 void operator=(const M_TypeName&)
 
+
+//流的数据类型，
+typedef enum _StreamType
+{
+	PROTOCOLTYPE_TEXT = 1,//字符串
+	PROTOCOLTYPE_BINARY,//2进制数据
+}StreamType;
+typedef enum _HeadType
+{
+	//定义包长度的枚举类型
+	HEADER_LEN_2 = 2,
+	HEADER_LEN_4 = 4
+}HeadType;
+
+#define PACKAGE_MAXLEN	 0xffff//65535
+
 #endif//GLP_BASE_H_

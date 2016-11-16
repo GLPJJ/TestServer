@@ -3,22 +3,17 @@
 
 #include <string>
 #include <string.h>
+#include "base.h"
 
 namespace Tool
 {
-
-	typedef enum _PACKAGELEN_TYPE
-	{
-		BINARY_PACKLEN_LEN = 2,
-		TEXT_PACKLEN_LEN = 4
-	}PACKAGELEN_TYPE;
-
-#define PACKAGE_MAXLEN	 0xffff//65535
+	class Package;
 
 	class ReadStream
 	{
+		DISALLOW_COPY_AND_ASSIGN(ReadStream);
 	public:
-		ReadStream(PACKAGELEN_TYPE htype_=BINARY_PACKLEN_LEN,bool net_=true):htype(htype_),net(net_){}
+		ReadStream(HeadType htype_=HEADER_LEN_2,bool net_=true):htype(htype_),net(net_){}
 		virtual ~ReadStream(){}
 
 		virtual bool readCom(/*out*/void* buffer,/*in*/size_t len_to_read,/*out*/size_t* len_readed) = 0;
@@ -38,15 +33,16 @@ namespace Tool
 		bool readLength(size_t & len);
 		bool readLengthWithoutOffset(size_t & outlen);
 	private:
-		bool							  net;
+		bool				net;
 	public:
-		PACKAGELEN_TYPE htype;
+		HeadType		htype;
 	};
 
 	class WriteStream
 	{
+		DISALLOW_COPY_AND_ASSIGN(WriteStream);
 	public:
-		WriteStream(PACKAGELEN_TYPE htype_=BINARY_PACKLEN_LEN,bool net_=true):htype(htype_),net(net_){}
+		WriteStream(HeadType htype_=HEADER_LEN_2,bool net_=true):htype(htype_),net(net_){}
 		virtual ~WriteStream(){}
 		bool write(const char* str, size_t length);
 		bool writeWithoutLength(const char* str, size_t length);
@@ -65,19 +61,15 @@ namespace Tool
 		//当peek为false时，跳过指定的offset数据内容。
 		virtual bool skip(size_t offset,bool peek=true)=0;
 	protected:
-		bool							  net;
-		PACKAGELEN_TYPE htype;
+		bool					net;
+		HeadType			htype;
 	};
 
 	class BinaryReadStream : public ReadStream
 	{
-	private:
-
-		BinaryReadStream(const BinaryReadStream&);
-		BinaryReadStream& operator=(const BinaryReadStream&);
-
 	public:
-		BinaryReadStream(const char* ptr_, size_t len_,PACKAGELEN_TYPE htype_=BINARY_PACKLEN_LEN);
+		BinaryReadStream(const char* ptr_, size_t len_,HeadType htype_=HEADER_LEN_2);
+		BinaryReadStream(Package* package);
 
 		virtual bool readCom(/*out*/void* buffer,/*in*/size_t len_to_read,/*out*/size_t* len_readed);
 
@@ -97,12 +89,8 @@ namespace Tool
 
 	class BinaryWriteStream : public WriteStream
 	{
-	private:
-		BinaryWriteStream(const BinaryWriteStream&);
-		BinaryWriteStream& operator=(const BinaryWriteStream&);
-
 	public:
-		BinaryWriteStream(char* ptr, size_t len,PACKAGELEN_TYPE htype_=BINARY_PACKLEN_LEN);
+		BinaryWriteStream(char* ptr, size_t len,HeadType htype_=HEADER_LEN_2);
 		virtual bool writeCom(/*in*/const void* buffer,/*in*/size_t len_to_write,/*out*/size_t* len_writed);
 
 		virtual bool skip(size_t offset,bool peek=false);
@@ -111,10 +99,22 @@ namespace Tool
 		virtual void flush();
 		virtual const char* getData() const {return start;}
 	private:
-		char* const start;
+		char* start;
 		const size_t len;
 		char*  cur;
 		char*  end;
+	};
+
+	template<size_t TSIZE=1024>
+	class BinaryWriteStreamT : public BinaryWriteStream
+	{
+	public:
+		BinaryWriteStreamT(HeadType htype_=HEADER_LEN_2)
+			:BinaryWriteStream(buf,TSIZE,htype_){
+				memset(buf,0,sizeof(TSIZE));
+		}
+	private:
+		char buf[TSIZE];
 	};
 }
 #endif//PROTOCOLSTREAM__H__

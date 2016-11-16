@@ -339,7 +339,7 @@ bool EventPosix::stopTimer() {
 		timer_thread_ = 0;
 	}
 	if (timer_event_) {
-		delete timer_event_;
+		Event::Destroy(timer_event_);
 		timer_event_ = 0;
 	}
 

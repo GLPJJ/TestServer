@@ -12,7 +12,7 @@ namespace Tool{
 		assert(mutex);
 	}
 	ObjectMgr::~ObjectMgr(){
-		delete_(Mutex,mutex);
+		Mutex::Destroy(mutex);
 	}
 
 	ObjectMgr* ObjectMgr::GetInstance(){

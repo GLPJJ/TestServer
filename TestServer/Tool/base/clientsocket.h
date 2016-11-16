@@ -35,18 +35,38 @@ namespace Tool
 		char m_host[20];
 	};
 
+	class ClientSocketBase;
+
+	class OnSocketListener{
+	public:
+		// 连接成功
+		virtual bool onSocketConnect(ClientSocketBase* client) = 0; 
+		// 连接超时
+		virtual void onSocketConnectTimeout(ClientSocketBase* client) = 0; 
+		// 正常关闭(被动关闭),recv == 0的情况
+		virtual void onSocketClose(ClientSocketBase* client) = 0; 
+		// errcode为错误码(socket提供)
+		virtual void onSocketConnectError(ClientSocketBase* client,int errCode) = 0; 
+		virtual void onSocketRecvError(ClientSocketBase* client,int errCode) = 0; 
+		virtual void onSocketSendError(ClientSocketBase* client,int errCode) = 0; 
+		// 网络层错误(errCode网络层定义)
+		virtual void onNetLevelError(ClientSocketBase* client,int errCode) = 0; 
+	};
+
 	class ClientSocketBase : public FDEventHandler
 	{
 	public:
-		ClientSocketBase() : m_pDecoder(NULL),m_bIsClosed(true){
+		ClientSocketBase() : m_pDecoder(),m_bIsClosed(true),m_pListener(){
 			m_pCSSendData = Mutex::CreateCriticalSection();
 		}
-		ClientSocketBase(Reactor *pReactor) : FDEventHandler(pReactor),m_pDecoder(NULL),m_bIsClosed(true){
+		ClientSocketBase(Reactor *pReactor) : FDEventHandler(pReactor),m_pDecoder()
+			,m_bIsClosed(true),m_pListener(){
 			m_pCSSendData = Mutex::CreateCriticalSection();
 		}
-		virtual ~ClientSocketBase(){if(m_pCSSendData)delete m_pCSSendData;}
+		virtual ~ClientSocketBase(){Mutex::Destroy(m_pCSSendData);}
         
 	public:
+		void reset();
 		void setDecoder(DataProcessBase* pDecoder){m_pDecoder = pDecoder;}
 		//网络可读的时候，recv数据
 		virtual void onFDRead();
@@ -60,32 +80,38 @@ namespace Tool
 		DataBlock* getWB(){return &m_senddata;}
 		//add buffer的时候注册写fd_set，这样可以被执行到OnFDWrite();
 		virtual int addBuf(const char* buf,size_t buflen);
-		char* getPeerIp();
+		const char* getPeerIp();
+
+		void setSocketListener(OnSocketListener* listener){m_pListener=listener;}
 
 		//从域名中解析出Ip地址,只返回第一个解析出来的,字符串保存在静态空间中，返回值不需要释放！
 		static const char* GetIpv4FromHostname(const char* name);
+		//根据指定fd给ip地址
+		static const char* GetPeerIp(int fd);
 	protected:
 		void open(){m_bIsClosed = false;}
-
 	public:
 		// 连接成功
-		virtual bool onSocketConnect() {return true;} 
+		virtual bool onSocketConnect() {if(m_pListener)return m_pListener->onSocketConnect(this);return true;} 
 		// 连接超时
-		virtual void onSocketConnectTimeout() {}
+		virtual void onSocketConnectTimeout() {if(m_pListener)m_pListener->onSocketConnectTimeout(this);}
 		// 正常关闭(被动关闭),recv == 0的情况
-		virtual void onSocketClose() {}
+		virtual void onSocketClose() {if(m_pListener)m_pListener->onSocketClose(this);}
 		// errcode为错误码(socket提供)
-		virtual void onSocketConnectError(int errCode) {}
-		virtual void onSocketRecvError(int errCode) {}
-		virtual void onSocketSendError(int errCode) {}
+		virtual void onSocketConnectError(int errCode) {if(m_pListener)m_pListener->onSocketConnectError(this,errCode);}
+		virtual void onSocketRecvError(int errCode) {if(m_pListener)m_pListener->onSocketRecvError(this,errCode);}
+		virtual void onSocketSendError(int errCode) {if(m_pListener)m_pListener->onSocketSendError(this,errCode);}
 		// 网络层错误(errCode网络层定义)
-		virtual void onNetLevelError(int errCode) {}
+		virtual void onNetLevelError(int errCode) {if(m_pListener)m_pListener->onNetLevelError(this,errCode);}
 
 	private:
 		DataBlock m_recvdata;
 		DataBlock m_senddata;
 		DataProcessBase *m_pDecoder;
 		bool m_bIsClosed;
+
+		//当子类继承的时候，可以不用这个，它主要为服务器监听客户端socket提供接口
+		OnSocketListener* m_pListener;
     public:
         Mutex* m_pCSSendData;
 	};
@@ -113,13 +139,12 @@ namespace Tool
 		int connect(const char* host,short port,int to = 10);
 		bool isConnect(){return m_isConnected;}
 		//添加的sendbuf中，并注册到写fd_set中
-		bool sendBuf(BinaryWriteStream &stream);
-		bool sendBuf(const char* buf,size_t buflen);
+		bool sendBuf(WriteStream &stream);
 
 		inline const char* gethost(){return m_host;}
 		inline short getport(){return m_port;}
-	public:
-
+	protected:
+		bool sendBuf(const char* buf,size_t buflen);
 	private:
 		bool m_isConnected;
 		char m_host[20];

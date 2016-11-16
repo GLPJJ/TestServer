@@ -20,12 +20,15 @@ namespace Tool{
 	{
 		DISALLOW_COPY_AND_ASSIGN(Package);
 	public: 
-		Package(const char* buf,size_t buflen);
+		Package(HeadType type,const char* buf,size_t buflen);
+		Package(HeadType type,char* buf,size_t buflen);
 
 		void initBuf(const char* buf,size_t buflen);
 		size_t getBuflen() const;
 		char *getBuf() const;
+		HeadType getHeadType() const;
 	private:
+		HeadType type;
 		DataBlock data;
 	};
 

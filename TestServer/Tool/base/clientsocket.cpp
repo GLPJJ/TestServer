@@ -44,6 +44,12 @@ namespace Tool
 		return 0;
 	}
 
+	//重置网络描述符的状态
+	void ClientSocketBase::reset()
+	{
+
+	}
+
 	void ClientSocketBase::onFDRead()
 	{
 		char buf[16384] = {0};/* 16*1024 */
@@ -138,18 +144,9 @@ namespace Tool
 		registerWrite();
 		return 0;
 	}
-	char* ClientSocketBase::getPeerIp()
+	const char* ClientSocketBase::getPeerIp()
 	{
-		sockaddr_in addr;
-#ifdef NETUTIL_MAC
-		size_t len = sizeof(sockaddr_in);
-#else
-		int len = sizeof(sockaddr_in);
-#endif
-		getpeername(m_fd,(struct sockaddr*)&addr,&len);
-		static char ip[32];
-		strncpy(ip,inet_ntoa(addr.sin_addr),sizeof(ip));
-		return ip;
+		return GetPeerIp(m_fd);
 	}
 	const char* ClientSocketBase::GetIpv4FromHostname(const char* name)
 	{
@@ -175,6 +172,21 @@ namespace Tool
 		}
 		return sIp;
 	}
+
+	const char* ClientSocketBase::GetPeerIp(int fd)
+	{
+		sockaddr_in addr;
+#ifdef NETUTIL_MAC
+		size_t len = sizeof(sockaddr_in);
+#else
+		int len = sizeof(sockaddr_in);
+#endif
+		getpeername(fd,(struct sockaddr*)&addr,&len);
+		static char ip[32] = {0};
+		strncpy(ip,inet_ntoa(addr.sin_addr),sizeof(ip));
+		return ip;
+	}
+
 	void ClientSocketBase::close()
 	{
 		m_bIsClosed = true;
@@ -188,14 +200,13 @@ namespace Tool
 		switch(m_waitType){
 			case wait_for_connect:
 				{
-					Log("客户端连接超时... fd=%d",m_fd);
 					onSocketConnectTimeout();
 					ClientSocketBase::close();
 					break;
 				}
 			case wait_for_write:
 				{
-					Log("客户端写socket超时... fd=%d",m_fd);
+					Log("客户端写socket超时... fd=%d\n",m_fd);
 					break;
 				}
 				
@@ -284,7 +295,7 @@ namespace Tool
 		return 0;
 	}
 
-	bool ClientSocket::sendBuf(BinaryWriteStream &stream)
+	bool ClientSocket::sendBuf(WriteStream &stream)
 	{
 		return sendBuf(stream.getData(),stream.getSize());
 	}

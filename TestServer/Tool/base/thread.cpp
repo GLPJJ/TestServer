@@ -90,9 +90,7 @@ ThreadWindows::~ThreadWindows() {
 	if (thread_) {
 		CloseHandle(thread_);
 	}
-	if (critsect_stop_) {
-		delete critsect_stop_;
-	}
+	Mutex::Destroy(critsect_stop_);
 }
 
 unsigned int WINAPI ThreadWindows::StartThread(LPVOID lp_parameter) {
@@ -368,8 +366,8 @@ int ThreadPosix::Construct() {
 
 ThreadPosix::~ThreadPosix() {
 	pthread_attr_destroy(&attr_);
-	delete event_;
-	delete crit_state_;
+	Event::Destroy(event_);
+	Mutex::Destroy(crit_state_);
 }
 
 #define HAS_THREAD_ID !defined(NETUTIL_IOS) && !defined(NETUTIL_MAC)

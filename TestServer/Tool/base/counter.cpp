@@ -10,7 +10,7 @@ Counter::Counter(int min,int max)
 }
 
 Counter::~Counter(){
-	delete_(Mutex,mutex);
+	Mutex::Destroy(mutex);
 }
 
 inline int Counter::get(){
@@ -18,6 +18,12 @@ inline int Counter::get(){
 
 	if(m_count >= m_max) m_count = m_min;
 	return ++m_count;
+}
+
+static Counter s_gCounter;
+int Counter::Get()
+{
+	return s_gCounter.get();
 }
 
 }

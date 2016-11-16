@@ -81,8 +81,7 @@ namespace Tool
 	}
 	NetRector::~NetRector()
 	{
-		if (m_cs)
-			delete m_cs;
+		Mutex::Destroy(m_cs);
 	}
 	int NetRector::registerIdle(IdleEventHandler *pHandler)
 	{

@@ -12,6 +12,7 @@ public:
 	
 	inline int get();
 
+	static int Get();
 private:
 	int m_count;
 	int m_min;

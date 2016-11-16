@@ -54,42 +54,118 @@ namespace Tool{
 		if(clientSocket == INVALID_SOCKET){
 			onAcceptError(errno);
 		} else {
-			onAccept((int)clientSocket,&addr);
+			onAccept((int)clientSocket);
 		}
 	}
 
 
 	ListenSocketBase2::~ListenSocketBase2()
 	{
-		std::map<int,ClientDataBase*>* dict = m_pClientMap.getMap();
-		std::map<int,ClientDataBase*>::iterator it = dict->begin();
+		std::map<int,ClientSocketBase*>* dict = m_pClientMap.getMap();
+		std::map<int,ClientSocketBase*>::iterator it = dict->begin();
 
-		while(it != dict->end()){
-			delete_(ClientDataBase,it->second);
+		while(it != dict->end())
+		{
+			delete_(ClientSocketBase,it->second);
 			it = dict->erase(it);
+		}
+
+		ClientList::iterator it_list = m_gClientList.begin();
+		while(it_list != m_gClientList.end())
+		{
+			ClientSocketBase* p = *it_list;
+			delete_(ClientSocketBase,p);
+			it_list = m_gClientList.erase(it_list);
 		}
 	}
 
-	void ListenSocketBase2::onAccept(int fd,sockaddr* addr)
+	void ListenSocketBase2::onAccept(int fd)
 	{
 		if(m_pClientMap.get(fd) == NULL){//可能吗？
 			
-			sockaddr_in* pAddr = (sockaddr_in*)addr;
-			//in_addr
-			Log("客户端新连接:接入 fd = %d,ip = %s\n",fd,inet_ntoa(pAddr->sin_addr));
+			Log("客户端新连接:接入 fd = %d,ip = %s\n",fd,ClientSocketBase::GetPeerIp(fd));
 
-			new_(ClientDataBase,pClient);
+			ClientSocketBase* pClient = getIdleClient();
 			if(pClient){
-				pClient->fd = fd;
-				memcpy(&pClient->addr,addr,sizeof(sockaddr));
-				pClient->uid = 0;
+				pClient->setFD(fd);
+				pClient->setDecoder(m_pDecoder);
+				pClient->setSocketListener(this);
 				m_pClientMap.put(fd,pClient);
+
+				//注册到监听socket读事件
+				pClient->registerRead();
 			}
 		}
 	}
 	void ListenSocketBase2::onAcceptError(int code)
 	{
 		Log("%s error = %d",__FUNCTION__,code);
+	}
+
+	//这个没用...
+	bool ListenSocketBase2::onSocketConnect(ClientSocketBase* client)
+	{
+		Log("%s,fd=%d,ip = %s\n",__FUNCTION__,client->getFD(),client->getPeerIp());
+		return true;
+	}
+	//这个没用...
+	void ListenSocketBase2::onSocketConnectTimeout(ClientSocketBase* client)
+	{
+		Log("%s,fd=%d,ip = %s\n",__FUNCTION__,client->getFD(),client->getPeerIp());
+		dealErrClient(client);
+	}
+	// 正常关闭(被动关闭),recv == 0的情况
+	void ListenSocketBase2::onSocketClose(ClientSocketBase* client)
+	{
+		Log("%s,fd=%d,ip = %s\n",__FUNCTION__,client->getFD(),client->getPeerIp());
+		dealErrClient(client);
+	}
+	// errcode为错误码(socket提供)
+	void ListenSocketBase2::onSocketConnectError(ClientSocketBase* client,int errCode)
+	{
+		Log("%s,fd=%d,ip = %s\n",__FUNCTION__,client->getFD(),client->getPeerIp());
+		dealErrClient(client);
+	}
+	void ListenSocketBase2::onSocketRecvError(ClientSocketBase* client,int errCode)
+	{
+		Log("%s,error = %d,fd=%d,ip = %s\n",__FUNCTION__,errCode,client->getFD(),client->getPeerIp());
+		dealErrClient(client);
+	}
+	void ListenSocketBase2::onSocketSendError(ClientSocketBase* client,int errCode)
+	{
+		Log("%s,error = %d,fd=%d,ip = %s\n",__FUNCTION__,errCode,client->getFD(),client->getPeerIp());
+		dealErrClient(client);
+	}
+	// 网络层错误(errCode网络层定义)
+	void ListenSocketBase2::onNetLevelError(ClientSocketBase* client,int errCode)
+	{
+		Log("%s,error = %d,fd=%d,ip = %s\n",__FUNCTION__,errCode,client->getFD(),client->getPeerIp());
+		dealErrClient(client);
+	}
+
+	void ListenSocketBase2::dealErrClient(ClientSocketBase* client)
+	{
+		m_pClientMap.del(client->getFD());
+		setIdleClient(client);
+	}
+
+	ClientSocketBase* ListenSocketBase2::getIdleClient()
+	{
+		ClientSocketBase* pRet = NULL;
+
+		if(m_gClientList.empty()){
+			new_(ClientSocketBase,pClient,m_pReactor);
+			pRet = pClient;
+		} else {
+			pRet = m_gClientList.front();
+			m_gClientList.pop_front();
+		}
+
+		return pRet;
+	}
+	void ListenSocketBase2::setIdleClient(ClientSocketBase* p)
+	{
+		m_gClientList.push_back(p);
 	}
 }
 

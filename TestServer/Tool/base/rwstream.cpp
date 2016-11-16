@@ -1,5 +1,6 @@
 #include "rwstream.h"
 #include "log.h"
+#include "package.h"
 #include <math.h>
 
 #ifdef WIN32
@@ -65,7 +66,7 @@ namespace Tool
 	{
 		switch(htype)
 		{
-		case BINARY_PACKLEN_LEN:
+		case HEADER_LEN_2:
 			{
 				unsigned short tmp;
 				size_t len_readed;
@@ -77,7 +78,7 @@ namespace Tool
 					outlen = tmp;
 				break;
 			}
-		case TEXT_PACKLEN_LEN:
+		case HEADER_LEN_4:
 			{
 				unsigned long tmp;
 				size_t len_readed;
@@ -124,10 +125,19 @@ namespace Tool
 		return skip(fieldlen,false);
 	}
 
-	BinaryReadStream::BinaryReadStream(const char* ptr_, size_t len_,PACKAGELEN_TYPE htype_)
+	BinaryReadStream::BinaryReadStream(const char* ptr_, size_t len_,HeadType htype_)
 		:ReadStream(htype_),start(ptr_),len(len_),cur(ptr_),end(ptr_+len_)
 	{
 		skip((int)htype,false);
+	}
+
+	BinaryReadStream::BinaryReadStream(Package* package)
+		:ReadStream(package->getHeadType())
+		,start(package->getBuf())
+		,len(package->getBuflen())
+		,cur(package->getBuf())
+		,end(package->getBuf()+package->getBuflen())
+	{
 	}
 
 	bool BinaryReadStream::readCom(/*out*/void* buffer,/*in*/size_t len_to_read,/*out*/size_t* len_readed)
@@ -164,8 +174,9 @@ namespace Tool
 			cur += offset;
 		return true;
 	}
+
 	////////////////////////////////write operation//////////////////////////////////////////
-	BinaryWriteStream::BinaryWriteStream(char* ptr_, size_t len_,PACKAGELEN_TYPE htype_)
+	BinaryWriteStream::BinaryWriteStream(char* ptr_, size_t len_,HeadType htype_)
 		:WriteStream(htype_), start(ptr_), len(len_), cur(ptr_),end(ptr_+len_)
 	{
 		skip((size_t)htype,false);
@@ -221,11 +232,10 @@ namespace Tool
 	{
 		switch(htype)
 		{
-		case BINARY_PACKLEN_LEN:
+		case HEADER_LEN_2:
 			{
 				unsigned short nShort = (unsigned short)length;
 				static const int offset = sizeof(unsigned short);
-				LOGI("unsigned short sizeof = %d\n",offset);
 				if(net)
 					nShort = htons(nShort);
 				if(!writeCom(&nShort,offset,NULL))
@@ -233,11 +243,10 @@ namespace Tool
 				skip(offset,false);
 				break;
 			}
-		case TEXT_PACKLEN_LEN:
+		case HEADER_LEN_4:
 			{
 				unsigned long nLong = (unsigned long)length;
 				static const int offset = sizeof(unsigned long);
-				LOGI("unsigned long sizeof = %d\n",offset);
 				if(net)
 					nLong = htonl(nLong);
 				if(!writeCom(&nLong,offset,NULL))
@@ -285,7 +294,7 @@ namespace Tool
 	bool BinaryWriteStream::isValid() const
 	{
 		size_t datalen = getSize();
-		return datalen > BINARY_PACKLEN_LEN && datalen <= PACKAGE_MAXLEN;
+		return datalen > HEADER_LEN_2 && datalen <= PACKAGE_MAXLEN;
 	}
 	void BinaryWriteStream::flush()
 	{
