@@ -79,7 +79,8 @@ namespace Tool
 		DataBlock* getRB(){return &m_recvdata;}
 		DataBlock* getWB(){return &m_senddata;}
 		//add buffer的时候注册写fd_set，这样可以被执行到OnFDWrite();
-		virtual int addBuf(const char* buf,size_t buflen);
+		virtual int addBuf(WriteStream &stream);
+
 		const char* getPeerIp();
 
 		void setSocketListener(OnSocketListener* listener){m_pListener=listener;}
@@ -89,6 +90,8 @@ namespace Tool
 		//根据指定fd给ip地址
 		static const char* GetPeerIp(int fd);
 	protected:
+		/*内部调用*/
+		int addBuf(const char* buf,size_t buflen);
 		void open(){m_bIsClosed = false;}
 	public:
 		// 连接成功

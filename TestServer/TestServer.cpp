@@ -103,6 +103,14 @@ public:
 		brs.read(buf,len,len);
 		Log("收到来自(%s)的内容[len=%d] : %s\n",pClient->getPeerIp(),len,buf);
 
+		const char* replay = "您好啊，这里是服务器~!";
+		Log("发送给(%s):%s\n",pClient->getPeerIp(),replay);
+
+		BinaryWriteStreamT<> ws;
+		ws.write(replay,strlen(replay));
+		ws.flush();
+		pClient->addBuf(ws);
+
 		return 0;
 	}
 };
@@ -172,6 +180,25 @@ public:
 	}
 };
 
+class ClientDataProcess : public DataProcess
+{
+public:
+	ClientDataProcess(StreamType pttype,HeadType hdlen)
+		:DataProcess(pttype,hdlen){}
+
+	virtual int onPackage(ClientSocketBase *pClient,Package* package)
+	{
+		BinaryReadStream brs(package);
+
+		char buf[1024] = {0};
+		size_t len = sizeof(buf);
+		brs.read(buf,len,len);
+		Log("收到来自服务器的内容[len=%d] : %s\n",len,buf);
+
+		return 0;
+	}
+};
+
 static NetClientReactor clientReactor;
 TestClientSocket clientSock(&clientReactor);
 bool ClientSocketFunc(ThreadObj obj)
@@ -181,7 +208,9 @@ bool ClientSocketFunc(ThreadObj obj)
 	//-----------------------------------------------
 	// Initialize Winsock
 	WSAStartup(MAKEWORD(2,2), &wsaData);
-
+	
+	ClientDataProcess process(PROTOCOLTYPE_BINARY,HEADER_LEN_2);
+	clientSock.setDecoder(&process);
 	clientSock.connect("127.0.0.1",9800);
 
 	clientReactor.run();

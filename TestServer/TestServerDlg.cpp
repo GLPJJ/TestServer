@@ -55,6 +55,8 @@ CTestServerDlg::CTestServerDlg(CWnd* pParent /*=NULL*/)
 void CTestServerDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_EDIT1, mEdit);
+	DDX_Control(pDX, IDC_COMBO1, mCCBClients);
 }
 
 BEGIN_MESSAGE_MAP(CTestServerDlg, CDialog)
@@ -62,6 +64,7 @@ BEGIN_MESSAGE_MAP(CTestServerDlg, CDialog)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	//}}AFX_MSG_MAP
+	ON_BN_CLICKED(IDC_BUTTON1, &CTestServerDlg::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
 
@@ -148,3 +151,8 @@ HCURSOR CTestServerDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+void CTestServerDlg::OnBnClickedButton1()
+{
+	// TODO: Add your control notification handler code here
+}

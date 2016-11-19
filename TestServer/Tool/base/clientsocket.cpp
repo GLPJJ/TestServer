@@ -133,6 +133,10 @@ namespace Tool
 			m_senddata.copy(0,m_senddata.getBuf() + len , buflen - len);
 		}
 	}
+	int ClientSocketBase::addBuf(WriteStream &stream)
+	{
+		return addBuf(stream.getData(),stream.getSize());
+	}
 	int ClientSocketBase::addBuf(const char* buf,size_t buflen)
 	{
         MutexScoped lock(m_pCSSendData);

@@ -2,6 +2,7 @@
 //
 
 #pragma once
+#include "afxwin.h"
 
 
 // CTestServerDlg ¶Ô»°¿ò
@@ -28,4 +29,9 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	CEdit mEdit;
+	CComboBox mCCBClients;
+public:
+	afx_msg void OnBnClickedButton1();
 };
