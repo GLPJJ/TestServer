@@ -63,12 +63,13 @@ namespace Tool{
 		// 网络层错误(errCode网络层定义)
 		virtual void onNetLevelError(ClientSocketBase* client,int errCode);
 
-	private:
-		void dealErrClient(ClientSocketBase* client);
+	protected:
+		virtual void dealErrClient(ClientSocketBase* client);
 
+	private:
 		ClientSocketBase* getIdleClient();
 		void setIdleClient(ClientSocketBase* p);
-	private:
+	protected:
 		DataProcessBase* m_pDecoder;
 		//活跃在线的客户端对象Map
 		ClientMap m_pClientMap;

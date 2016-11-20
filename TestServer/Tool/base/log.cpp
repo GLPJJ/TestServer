@@ -99,6 +99,19 @@ namespace Tool{
 
 #endif//_WIN32
 
+	void LogCiphertext(const unsigned char* ciphertext,size_t len)
+	{
+		int pos = 0;
+		while(pos < len){
+			Log("%02x",ciphertext[pos]);
+			pos ++;
+		}
+	}
+
+	void LogN(){
+		Log("\n");
+	}
+
 	void SleepMs(int msecs) {
 #ifdef _WIN32
 		Sleep(msecs);

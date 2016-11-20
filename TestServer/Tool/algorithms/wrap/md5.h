@@ -26,17 +26,9 @@ typedef struct {
    WORD state[4];
 } MD5_CTX;
 
-#ifdef __cplusplus
-extern "C" { //给C++文件调用
-#endif
-
 /*********************** FUNCTION DECLARATIONS **********************/
 void md5_init(MD5_CTX *ctx);
 void md5_update(MD5_CTX *ctx, const BYTE data[], size_t len);
 void md5_final(MD5_CTX *ctx, BYTE hash[]);
-
-#ifdef __cplusplus
-};
-#endif
 
 #endif   // MD5_H

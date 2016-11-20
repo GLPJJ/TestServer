@@ -4,14 +4,12 @@
 #include "stdafx.h"
 #include "TestServer.h"
 #include "TestServerDlg.h"
-
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
-
+#include "TestClientSocket.h"
+extern TestClientSocket* pClientSock;
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
+CComboBox* pCCBox;
 class CAboutDlg : public CDialog
 {
 public:
@@ -98,6 +96,7 @@ BOOL CTestServerDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
+	pCCBox = &mCCBClients;
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -155,4 +154,11 @@ HCURSOR CTestServerDlg::OnQueryDragIcon()
 void CTestServerDlg::OnBnClickedButton1()
 {
 	// TODO: Add your control notification handler code here
+	char buf[65535] = {0};
+	size_t len = ::GetDlgItemTextA(m_hWnd,IDC_EDIT1,buf,sizeof(buf)-1);
+
+	Tool::BinaryWriteStreamT<> ws;
+	ws.write(buf,len);
+	ws.flush();
+	pClientSock->sendBuf(ws);
 }

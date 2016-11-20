@@ -6,6 +6,8 @@ namespace Tool{
 	void InitLogDir(const char* dir);
 
 	void Log(char* pszLog,...);
+	void LogCiphertext(const unsigned char* ciphertext,size_t len);
+	void LogN();
 
 	// This function sleeps for the specified number of milliseconds.
 	// It may return early if the thread is woken by some other event,

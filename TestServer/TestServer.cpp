@@ -2,9 +2,10 @@
 //
 
 #include "stdafx.h"
-#include "vld.h"
+//#include "vld.h"
 #include "TestServer.h"
 #include "TestServerDlg.h"
+#include "TestClientSocket.h"
 
 //去他娘的DEBUG_NEW
 // #ifdef _DEBUG
@@ -88,6 +89,50 @@ public:
 	}
 };
 
+extern CComboBox* pCCBox;
+
+class TestListenSocket : public ListenSocketBase2
+{
+public:
+	TestListenSocket(int port,Reactor *pReactor,DataProcessBase*pDecoder) 
+		: ListenSocketBase2(port,pReactor,pDecoder) 
+	{}
+
+
+	void TestListenSocket::onAccept(int fd){
+		if(m_pClientMap.get(fd) == NULL){
+			ListenSocketBase2::onAccept(fd);
+
+			fds.push_back(fd);
+
+			char name[100] = {0};
+			sprintf(name,"%d",fd);
+			pCCBox->AddString(name);
+		}
+	}
+
+protected:
+	void dealErrClient(ClientSocketBase* client){
+		ListenSocketBase2::dealErrClient(client);
+
+		std::list<int>::iterator it = fds.begin();
+
+		int pos = 0;
+		while(it != fds.end()){
+			if(*it == client->getFD()){
+				pCCBox->DeleteString(pos);
+				fds.erase(it);
+				break;
+			}
+			it ++;
+			pos ++;
+		}
+	}
+
+private:
+	std::list<int> fds;
+};
+
 class ServerDataProcess : public DataProcess
 {
 public:
@@ -125,7 +170,7 @@ bool ServerSocketFunc(ThreadObj obj)
 	WSAStartup(MAKEWORD(2,2), &wsaData);
 
 	ServerDataProcess process(PROTOCOLTYPE_BINARY,HEADER_LEN_2);
-	ListenSocketBase2 listenSock(9800,&serverReactor,&process);
+	TestListenSocket listenSock(9800,&serverReactor,&process);
 	listenSock.listen();
 	LogTimer logTimer(&serverReactor);
 	logTimer.registerTimer(3);
@@ -137,48 +182,45 @@ bool ServerSocketFunc(ThreadObj obj)
 	return false;
 }
 
-class TestClientSocket : public ClientSocket
-{
-public:
-	TestClientSocket(Reactor *pReactor):ClientSocket(pReactor){}
+// 连接成功
+bool TestClientSocket::onSocketConnect() {
+	Log("%s\n",__FUNCTION__);
 
-	// 连接成功
-	virtual bool onSocketConnect() {
-		Log("%s\n",__FUNCTION__);
+	/*
+	char sendbuf[] = "你好，我是张欣怡";
 
-		char sendbuf[] = "你好，我是张欣怡";
+	BinaryWriteStreamT<> bws;
+	bws.write(sendbuf,sizeof(sendbuf));
+	bws.flush();
 
-		BinaryWriteStreamT<> bws;
-		bws.write(sendbuf,sizeof(sendbuf));
-		bws.flush();
+	Log("send server data(len=%d):%s\n",sizeof(sendbuf),sendbuf);
+	sendBuf(bws);
+	*/
+	return true;
+} 
+// 连接超时
+void TestClientSocket::onSocketConnectTimeout() {
+	Log("%s\n",__FUNCTION__);
+}
+// 正常关闭(被动关闭),recv == 0的情况
+void TestClientSocket::onSocketClose() {
+	Log("%s\n",__FUNCTION__);
+}
+// errcode为错误码(socket提供)
+void TestClientSocket::onSocketConnectError(int errCode) {
+	Log("%s,error code = %d\n",__FUNCTION__,errCode);
+}
+void TestClientSocket::onSocketRecvError(int errCode) {
+	Log("%s,error code = %d\n",__FUNCTION__,errCode);
+}
+void TestClientSocket::onSocketSendError(int errCode) {
+	Log("%s,error code = %d\n",__FUNCTION__,errCode);
+}
+// 网络层错误(errCode网络层定义)
+void TestClientSocket::onNetLevelError(int errCode) {
+	Log("%s,error code = %d\n",__FUNCTION__,errCode);
+}
 
-		Log("send server data(len=%d):%s\n",sizeof(sendbuf),sendbuf);
-		sendBuf(bws);
-		return true;
-	} 
-	// 连接超时
-	virtual void onSocketConnectTimeout() {
-		Log("%s\n",__FUNCTION__);
-	}
-	// 正常关闭(被动关闭),recv == 0的情况
-	virtual void onSocketClose() {
-		Log("%s\n",__FUNCTION__);
-	}
-	// errcode为错误码(socket提供)
-	virtual void onSocketConnectError(int errCode) {
-		Log("%s,error code = %d\n",__FUNCTION__,errCode);
-	}
-	virtual void onSocketRecvError(int errCode) {
-		Log("%s,error code = %d\n",__FUNCTION__,errCode);
-	}
-	virtual void onSocketSendError(int errCode) {
-		Log("%s,error code = %d\n",__FUNCTION__,errCode);
-	}
-	// 网络层错误(errCode网络层定义)
-	virtual void onNetLevelError(int errCode) {
-		Log("%s,error code = %d\n",__FUNCTION__,errCode);
-	}
-};
 
 class ClientDataProcess : public DataProcess
 {
@@ -201,6 +243,7 @@ public:
 
 static NetClientReactor clientReactor;
 TestClientSocket clientSock(&clientReactor);
+TestClientSocket* pClientSock = &clientSock;
 bool ClientSocketFunc(ThreadObj obj)
 {
 	WSADATA wsaData;
@@ -250,6 +293,24 @@ BOOL CTestServerApp::InitInstance()
 	SetRegistryKey(_T("应用程序向导生成的本地应用程序"));
 	
 	NewConsole();
+
+	char plaintext[] = "12345678";
+	Log("加密前 : %s\n",plaintext);
+	//test MD5
+	std::string md5 = Algorithms::EncodeWithMd5((unsigned char*)plaintext,strlen(plaintext));
+	Log("md5 : ");
+	LogCiphertext((const unsigned char*)md5.c_str(),md5.length());
+	LogN();
+	//test AES
+	unsigned char outbuffer[200] = {0};
+	unsigned char outbuffer2[200] = {0};
+	unsigned char key[32] = {0x60,0x3d,0xeb,0x10,0x15,0xca,0x71,0xbe,0x2b,0x73,0xae,0xf0,0x85,0x7d,0x77,0x81,0x1f,0x35,0x2c,0x07,0x3b,0x61,0x08,0xd7,0x2d,0x98,0x10,0xa3,0x09,0x14,0xdf,0xf4};
+	Algorithms::EncodeWithAesCtr(key,256,(unsigned char*)plaintext,strlen(plaintext),outbuffer);
+	Log("aes ciphertext : ");
+	LogCiphertext(outbuffer,strlen((const char*)outbuffer));
+	LogN();
+	Algorithms::DecodeWithAesCtr(key,256,outbuffer,strlen(plaintext),outbuffer2);
+	Log("aes plaintext : %s\n",outbuffer2);
 
 	Log("I'm GLP\n");
 
