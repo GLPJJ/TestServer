@@ -445,7 +445,7 @@ namespace NetworkUtil
 		return true;
 	}
 
-#define PIANYI 3
+#define PIANYI 0
 	bool StreamDecrypt(const char *inbuf,int inbuflen,char *outbuf,int &outbuflen,char key[16],int type)
 	{
 		char *outbuf2 = outbuf + PIANYI;

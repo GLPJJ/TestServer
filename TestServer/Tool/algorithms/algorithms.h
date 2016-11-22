@@ -22,7 +22,19 @@ public:
 	*/
 	static std::string EncodeWithMd5(const unsigned char* data,size_t len);
 
+	/*
+	AES加密
+
+	@param key:指定key
+	@param keysize:指定key的位数
+	*/
 	static bool EncodeWithAesCtr(const unsigned char* key,size_t keysize,const unsigned char* plaintext,size_t len,unsigned char* out);
+	/*
+	AES解密
+
+	@param key:指定key
+	@param keysize:指定key的位数
+	*/
 	static bool DecodeWithAesCtr(const unsigned char* key,size_t keysize,const unsigned char* ciphertext,size_t len,unsigned char* out);
 
 };

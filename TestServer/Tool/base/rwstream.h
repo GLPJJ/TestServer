@@ -32,8 +32,10 @@ namespace Tool
 	private:
 		bool readLength(size_t & len);
 		bool readLengthWithoutOffset(size_t & outlen);
+	public:
+		virtual void initType(HeadType htype_){htype=htype_;}
 	private:
-		bool				net;
+		bool			net;
 	public:
 		HeadType		htype;
 	};
@@ -68,7 +70,7 @@ namespace Tool
 	class BinaryReadStream : public ReadStream
 	{
 	public:
-		BinaryReadStream(const char* ptr_, size_t len_,HeadType htype_=HEADER_LEN_2);
+		//BinaryReadStream(const char* ptr_, size_t len_,HeadType htype_=HEADER_LEN_2);
 		BinaryReadStream(Package* package);
 
 		virtual bool readCom(/*out*/void* buffer,/*in*/size_t len_to_read,/*out*/size_t* len_readed);
@@ -80,9 +82,11 @@ namespace Tool
 		virtual bool isEnd() const {return cur == end;}
 		virtual bool skip(size_t offset,bool peek=true);
 
+		void init(const char* ptr_, size_t len_,HeadType htype_);
+		void init(Package* package);
 	private:
-		const char* const start;
-		const size_t len;
+		const char* start;
+		size_t len;
 		const char* cur;
 		const char* end;
 	};

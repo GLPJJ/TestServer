@@ -6,6 +6,7 @@
 #include "TestServerDlg.h"
 #include "TestClientSocket.h"
 extern TestClientSocket* pClientSock;
+extern TestListenSocket* pServerSocket;
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
@@ -156,9 +157,19 @@ void CTestServerDlg::OnBnClickedButton1()
 	// TODO: Add your control notification handler code here
 	char buf[65535] = {0};
 	size_t len = ::GetDlgItemTextA(m_hWnd,IDC_EDIT1,buf,sizeof(buf)-1);
-
 	Tool::BinaryWriteStreamT<> ws;
 	ws.write(buf,len);
 	ws.flush();
+#if GLP_SERVER
+	int n = pCCBox->GetCurSel();
+	if(n == -1)
+	{
+		MessageBox("请选择一个客户端描述符!");
+		return;
+	}
+	pServerSocket->sendToClient(n,ws);
+#else
 	pClientSock->sendBuf(ws);
+#endif
+	
 }

@@ -91,47 +91,36 @@ public:
 
 extern CComboBox* pCCBox;
 
-class TestListenSocket : public ListenSocketBase2
-{
-public:
-	TestListenSocket(int port,Reactor *pReactor,DataProcessBase*pDecoder) 
-		: ListenSocketBase2(port,pReactor,pDecoder) 
-	{}
 
+void TestListenSocket::onAccept(int fd){
+	if(m_pClientMap.get(fd) == NULL){
+		ListenSocketBase2::onAccept(fd);
 
-	void TestListenSocket::onAccept(int fd){
-		if(m_pClientMap.get(fd) == NULL){
-			ListenSocketBase2::onAccept(fd);
+		fds.push_back(fd);
 
-			fds.push_back(fd);
-
-			char name[100] = {0};
-			sprintf(name,"%d",fd);
-			pCCBox->AddString(name);
-		}
+		char name[100] = {0};
+		sprintf(name,"%d",fd);
+		pCCBox->AddString(name);
 	}
+}
+void TestListenSocket::dealErrClient(ClientSocketBase* client){
+	ListenSocketBase2::dealErrClient(client);
 
-protected:
-	void dealErrClient(ClientSocketBase* client){
-		ListenSocketBase2::dealErrClient(client);
+	std::list<int>::iterator it = fds.begin();
 
-		std::list<int>::iterator it = fds.begin();
-
-		int pos = 0;
-		while(it != fds.end()){
-			if(*it == client->getFD()){
-				pCCBox->DeleteString(pos);
-				fds.erase(it);
-				break;
-			}
-			it ++;
-			pos ++;
+	int pos = 0;
+	//pCCBox->ResetContent();
+	pCCBox->SetCurSel(-1);
+	while(it != fds.end()){
+		if(*it == client->getFD()){
+			pCCBox->DeleteString(pos);
+			fds.erase(it);
+			break;
 		}
+		it ++;
+		pos ++;
 	}
-
-private:
-	std::list<int> fds;
-};
+}
 
 class ServerDataProcess : public DataProcess
 {
@@ -161,6 +150,7 @@ public:
 };
 
 static NetServerReactor serverReactor;
+TestListenSocket* pServerSocket;
 bool ServerSocketFunc(ThreadObj obj)
 {
 	WSADATA wsaData;
@@ -171,6 +161,7 @@ bool ServerSocketFunc(ThreadObj obj)
 
 	ServerDataProcess process(PROTOCOLTYPE_BINARY,HEADER_LEN_2);
 	TestListenSocket listenSock(9800,&serverReactor,&process);
+	pServerSocket = &listenSock;
 	listenSock.listen();
 	LogTimer logTimer(&serverReactor);
 	logTimer.registerTimer(3);
@@ -262,8 +253,6 @@ bool ClientSocketFunc(ThreadObj obj)
 
 	return false;
 }
-
-#define GLP_SERVER 1
 
 // CTestServerApp ≥ı ºªØ
 

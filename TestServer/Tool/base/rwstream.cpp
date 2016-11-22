@@ -125,19 +125,31 @@ namespace Tool
 		return skip(fieldlen,false);
 	}
 
-	BinaryReadStream::BinaryReadStream(const char* ptr_, size_t len_,HeadType htype_)
-		:ReadStream(htype_),start(ptr_),len(len_),cur(ptr_),end(ptr_+len_)
-	{
-		skip((int)htype,false);
-	}
+// 	BinaryReadStream::BinaryReadStream(const char* ptr_, size_t len_,HeadType htype_)
+// 		:ReadStream(htype_),start(ptr_),len(len_),cur(ptr_),end(ptr_+len_)
+// 	{
+// 		skip((int)htype,false);
+// 	}
 
 	BinaryReadStream::BinaryReadStream(Package* package)
 		:ReadStream(package->getHeadType())
-		,start(package->getBuf())
-		,len(package->getBuflen())
-		,cur(package->getBuf())
-		,end(package->getBuf()+package->getBuflen())
 	{
+		init(package);
+	}
+
+	void BinaryReadStream::init(const char* ptr_, size_t len_,HeadType htype_)
+	{
+		initType(htype_);
+		start = ptr_;
+		len = len_;
+		cur = ptr_;
+		end = ptr_+len_;
+	}
+
+	void BinaryReadStream::init(Package* package)
+	{
+		package->decode();//½âÃÜ
+		init(package->getBuf(),package->getBuflen(),package->getHeadType());
 	}
 
 	bool BinaryReadStream::readCom(/*out*/void* buffer,/*in*/size_t len_to_read,/*out*/size_t* len_readed)
