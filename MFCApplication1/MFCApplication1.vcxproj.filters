@@ -45,44 +45,137 @@
     <ClInclude Include="Resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Tool\algorithms\wrap\aes.h">
-      <Filter>Tool\algorithms\wrap</Filter>
-    </ClInclude>
-    <ClInclude Include="Tool\algorithms\wrap\arcfour.h">
-      <Filter>Tool\algorithms\wrap</Filter>
-    </ClInclude>
-    <ClInclude Include="Tool\algorithms\wrap\base64.h">
-      <Filter>Tool\algorithms\wrap</Filter>
-    </ClInclude>
-    <ClInclude Include="Tool\algorithms\wrap\blowfish.h">
-      <Filter>Tool\algorithms\wrap</Filter>
-    </ClInclude>
-    <ClInclude Include="Tool\algorithms\wrap\des.h">
-      <Filter>Tool\algorithms\wrap</Filter>
-    </ClInclude>
-    <ClInclude Include="Tool\algorithms\wrap\md2.h">
-      <Filter>Tool\algorithms\wrap</Filter>
-    </ClInclude>
-    <ClInclude Include="Tool\algorithms\wrap\md5.h">
-      <Filter>Tool\algorithms\wrap</Filter>
-    </ClInclude>
-    <ClInclude Include="Tool\algorithms\wrap\rot-13.h">
-      <Filter>Tool\algorithms\wrap</Filter>
-    </ClInclude>
-    <ClInclude Include="Tool\algorithms\wrap\rsa.h">
-      <Filter>Tool\algorithms\wrap</Filter>
-    </ClInclude>
-    <ClInclude Include="Tool\algorithms\wrap\sha1.h">
-      <Filter>Tool\algorithms\wrap</Filter>
-    </ClInclude>
-    <ClInclude Include="Tool\algorithms\wrap\sha256.h">
-      <Filter>Tool\algorithms\wrap</Filter>
-    </ClInclude>
-    <ClInclude Include="Tool\algorithms\algorithms.h">
+    <ClInclude Include="..\TestServer\Tool\algorithms\crypt.h">
       <Filter>Tool\algorithms</Filter>
     </ClInclude>
-    <ClInclude Include="Tool\base\object.h">
+    <ClInclude Include="..\TestServer\Tool\algorithms\algorithms.h">
+      <Filter>Tool\algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\algorithms\wrap\arcfour.h">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\algorithms\wrap\base64.h">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\algorithms\wrap\blowfish.h">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\algorithms\wrap\des.h">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\algorithms\wrap\md2.h">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\algorithms\wrap\md5.h">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\algorithms\wrap\rot-13.h">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\algorithms\wrap\rsa.h">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\algorithms\wrap\sha1.h">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\algorithms\wrap\sha256.h">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\algorithms\wrap\aes.h">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\clientdata.h">
       <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\clientsocket.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\config.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\counter.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\datablock.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\dataprocess.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\event.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\event_posix.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\event_win.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\eventhandler.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\file.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\httpcontent.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\httpdownload.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\httpdownloadmgr.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\httpdownloadtype.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\json.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\log.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\mutex.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\object.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\package.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\reactor.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\rwstream.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\seqmap.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\serversocket.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\thread.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\thread_mgr.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\thread_posix.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\thread_win.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\timer.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\base\base.h">
+      <Filter>Tool\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestServer\Tool\Tool.h">
+      <Filter>Tool</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -95,43 +188,142 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Tool\algorithms\wrap\aes.c">
-      <Filter>Tool\algorithms\wrap</Filter>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\wrap\arcfour.c">
-      <Filter>Tool\algorithms\wrap</Filter>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\wrap\base64.c">
-      <Filter>Tool\algorithms\wrap</Filter>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\wrap\blowfish.c">
-      <Filter>Tool\algorithms\wrap</Filter>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\wrap\des.c">
-      <Filter>Tool\algorithms\wrap</Filter>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\wrap\md2.c">
-      <Filter>Tool\algorithms\wrap</Filter>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\wrap\md5.c">
-      <Filter>Tool\algorithms\wrap</Filter>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\wrap\rot-13.c">
-      <Filter>Tool\algorithms\wrap</Filter>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\wrap\rsa.c">
-      <Filter>Tool\algorithms\wrap</Filter>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\wrap\sha1.c">
-      <Filter>Tool\algorithms\wrap</Filter>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\wrap\sha256.c">
-      <Filter>Tool\algorithms\wrap</Filter>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\algorithms.cpp">
+    <ClCompile Include="..\TestServer\Tool\algorithms\crypt.cpp">
       <Filter>Tool\algorithms</Filter>
     </ClCompile>
-    <ClCompile Include="Tool\base\object.cpp">
+    <ClCompile Include="..\TestServer\Tool\algorithms\algorithms.cpp">
+      <Filter>Tool\algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\aes_test.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\arcfour.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\arcfour_test.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\base64.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\base64_test.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\blowfish.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\blowfish_test.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\des.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\des_test.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\md2.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\md2_test.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\md5.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\md5_test.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\rot-13.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\rot-13_test.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\rsa.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\sha1.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\sha1_test.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\sha256.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\sha256_test.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\aes.c">
+      <Filter>Tool\algorithms\wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\clientsocket.cpp">
+      <Filter>Tool\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\counter.cpp">
+      <Filter>Tool\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\datablock.cpp">
+      <Filter>Tool\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\dataprocess.cpp">
+      <Filter>Tool\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\event.cpp">
+      <Filter>Tool\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\eventhandler.cpp">
+      <Filter>Tool\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\file.cpp">
+      <Filter>Tool\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\httpcontent.cpp">
+      <Filter>Tool\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\httpdownload.cpp">
+      <Filter>Tool\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\httpdownloadmgr.cpp">
+      <Filter>Tool\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\json.cpp">
+      <Filter>Tool\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\log.cpp">
+      <Filter>Tool\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\mutex.cpp">
+      <Filter>Tool\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\object.cpp">
+      <Filter>Tool\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\package.cpp">
+      <Filter>Tool\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\reactor.cpp">
+      <Filter>Tool\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\rwstream.cpp">
+      <Filter>Tool\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\seqmap.cpp">
+      <Filter>Tool\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\serversocket.cpp">
+      <Filter>Tool\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\thread.cpp">
+      <Filter>Tool\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\thread_mgr.cpp">
+      <Filter>Tool\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\timer.cpp">
+      <Filter>Tool\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TestServer\Tool\base\clientdata.cpp">
       <Filter>Tool\base</Filter>
     </ClCompile>
   </ItemGroup>

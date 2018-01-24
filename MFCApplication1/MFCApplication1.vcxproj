@@ -109,70 +109,108 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\TestServer\Tool\algorithms\algorithms.h" />
+    <ClInclude Include="..\TestServer\Tool\algorithms\crypt.h" />
+    <ClInclude Include="..\TestServer\Tool\algorithms\wrap\aes.h" />
+    <ClInclude Include="..\TestServer\Tool\algorithms\wrap\arcfour.h" />
+    <ClInclude Include="..\TestServer\Tool\algorithms\wrap\base64.h" />
+    <ClInclude Include="..\TestServer\Tool\algorithms\wrap\blowfish.h" />
+    <ClInclude Include="..\TestServer\Tool\algorithms\wrap\des.h" />
+    <ClInclude Include="..\TestServer\Tool\algorithms\wrap\md2.h" />
+    <ClInclude Include="..\TestServer\Tool\algorithms\wrap\md5.h" />
+    <ClInclude Include="..\TestServer\Tool\algorithms\wrap\rot-13.h" />
+    <ClInclude Include="..\TestServer\Tool\algorithms\wrap\rsa.h" />
+    <ClInclude Include="..\TestServer\Tool\algorithms\wrap\sha1.h" />
+    <ClInclude Include="..\TestServer\Tool\algorithms\wrap\sha256.h" />
+    <ClInclude Include="..\TestServer\Tool\base\base.h" />
+    <ClInclude Include="..\TestServer\Tool\base\clientdata.h" />
+    <ClInclude Include="..\TestServer\Tool\base\clientsocket.h" />
+    <ClInclude Include="..\TestServer\Tool\base\config.h" />
+    <ClInclude Include="..\TestServer\Tool\base\counter.h" />
+    <ClInclude Include="..\TestServer\Tool\base\datablock.h" />
+    <ClInclude Include="..\TestServer\Tool\base\dataprocess.h" />
+    <ClInclude Include="..\TestServer\Tool\base\event.h" />
+    <ClInclude Include="..\TestServer\Tool\base\eventhandler.h" />
+    <ClInclude Include="..\TestServer\Tool\base\event_posix.h" />
+    <ClInclude Include="..\TestServer\Tool\base\event_win.h" />
+    <ClInclude Include="..\TestServer\Tool\base\file.h" />
+    <ClInclude Include="..\TestServer\Tool\base\httpcontent.h" />
+    <ClInclude Include="..\TestServer\Tool\base\httpdownload.h" />
+    <ClInclude Include="..\TestServer\Tool\base\httpdownloadmgr.h" />
+    <ClInclude Include="..\TestServer\Tool\base\httpdownloadtype.h" />
+    <ClInclude Include="..\TestServer\Tool\base\json.h" />
+    <ClInclude Include="..\TestServer\Tool\base\log.h" />
+    <ClInclude Include="..\TestServer\Tool\base\mutex.h" />
+    <ClInclude Include="..\TestServer\Tool\base\object.h" />
+    <ClInclude Include="..\TestServer\Tool\base\package.h" />
+    <ClInclude Include="..\TestServer\Tool\base\reactor.h" />
+    <ClInclude Include="..\TestServer\Tool\base\rwstream.h" />
+    <ClInclude Include="..\TestServer\Tool\base\seqmap.h" />
+    <ClInclude Include="..\TestServer\Tool\base\serversocket.h" />
+    <ClInclude Include="..\TestServer\Tool\base\thread.h" />
+    <ClInclude Include="..\TestServer\Tool\base\thread_mgr.h" />
+    <ClInclude Include="..\TestServer\Tool\base\thread_posix.h" />
+    <ClInclude Include="..\TestServer\Tool\base\thread_win.h" />
+    <ClInclude Include="..\TestServer\Tool\base\timer.h" />
+    <ClInclude Include="..\TestServer\Tool\Tool.h" />
     <ClInclude Include="MFCApplication1.h" />
     <ClInclude Include="MFCApplication1Dlg.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="Tool\algorithms\algorithms.h" />
-    <ClInclude Include="Tool\algorithms\wrap\aes.h" />
-    <ClInclude Include="Tool\algorithms\wrap\arcfour.h" />
-    <ClInclude Include="Tool\algorithms\wrap\base64.h" />
-    <ClInclude Include="Tool\algorithms\wrap\blowfish.h" />
-    <ClInclude Include="Tool\algorithms\wrap\des.h" />
-    <ClInclude Include="Tool\algorithms\wrap\md2.h" />
-    <ClInclude Include="Tool\algorithms\wrap\md5.h" />
-    <ClInclude Include="Tool\algorithms\wrap\rot-13.h" />
-    <ClInclude Include="Tool\algorithms\wrap\rsa.h" />
-    <ClInclude Include="Tool\algorithms\wrap\sha1.h" />
-    <ClInclude Include="Tool\algorithms\wrap\sha256.h" />
-    <ClInclude Include="Tool\base\object.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\TestServer\Tool\algorithms\algorithms.cpp" />
+    <ClCompile Include="..\TestServer\Tool\algorithms\crypt.cpp" />
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\aes.c" />
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\aes_test.c" />
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\arcfour.c" />
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\arcfour_test.c" />
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\base64.c" />
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\base64_test.c" />
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\blowfish.c" />
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\blowfish_test.c" />
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\des.c" />
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\des_test.c" />
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\md2.c" />
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\md2_test.c" />
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\md5.c" />
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\md5_test.c" />
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\rot-13.c" />
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\rot-13_test.c" />
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\rsa.c" />
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\sha1.c" />
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\sha1_test.c" />
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\sha256.c" />
+    <ClCompile Include="..\TestServer\Tool\algorithms\wrap\sha256_test.c" />
+    <ClCompile Include="..\TestServer\Tool\base\clientdata.cpp" />
+    <ClCompile Include="..\TestServer\Tool\base\clientsocket.cpp" />
+    <ClCompile Include="..\TestServer\Tool\base\counter.cpp" />
+    <ClCompile Include="..\TestServer\Tool\base\datablock.cpp" />
+    <ClCompile Include="..\TestServer\Tool\base\dataprocess.cpp" />
+    <ClCompile Include="..\TestServer\Tool\base\event.cpp" />
+    <ClCompile Include="..\TestServer\Tool\base\eventhandler.cpp" />
+    <ClCompile Include="..\TestServer\Tool\base\file.cpp" />
+    <ClCompile Include="..\TestServer\Tool\base\httpcontent.cpp" />
+    <ClCompile Include="..\TestServer\Tool\base\httpdownload.cpp" />
+    <ClCompile Include="..\TestServer\Tool\base\httpdownloadmgr.cpp" />
+    <ClCompile Include="..\TestServer\Tool\base\json.cpp" />
+    <ClCompile Include="..\TestServer\Tool\base\log.cpp" />
+    <ClCompile Include="..\TestServer\Tool\base\mutex.cpp" />
+    <ClCompile Include="..\TestServer\Tool\base\object.cpp" />
+    <ClCompile Include="..\TestServer\Tool\base\package.cpp" />
+    <ClCompile Include="..\TestServer\Tool\base\reactor.cpp" />
+    <ClCompile Include="..\TestServer\Tool\base\rwstream.cpp" />
+    <ClCompile Include="..\TestServer\Tool\base\seqmap.cpp" />
+    <ClCompile Include="..\TestServer\Tool\base\serversocket.cpp" />
+    <ClCompile Include="..\TestServer\Tool\base\thread.cpp" />
+    <ClCompile Include="..\TestServer\Tool\base\thread_mgr.cpp" />
+    <ClCompile Include="..\TestServer\Tool\base\timer.cpp" />
     <ClCompile Include="MFCApplication1.cpp" />
     <ClCompile Include="MFCApplication1Dlg.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\algorithms.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\wrap\aes.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\wrap\arcfour.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\wrap\base64.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\wrap\blowfish.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\wrap\des.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\wrap\md2.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\wrap\md5.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\wrap\rot-13.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\wrap\rsa.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\wrap\sha1.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Tool\algorithms\wrap\sha256.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Tool\base\object.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

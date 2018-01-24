@@ -33,7 +33,7 @@ namespace Tool
 
 	protected:
 		StreamType	m_pttype;
-		HeadType		m_hdlen;
+		HeadType	m_hdlen;
 	};
 }
 #endif//DATADECODER__H__

@@ -173,7 +173,6 @@ LRESULT CMFCApplication1Dlg::OnShowTask(WPARAM wParam, LPARAM lParam){
 	{
 	case WM_RBUTTONUP:// 右键起来时弹出菜单
 	{
-
 		LPPOINT lpoint = new tagPOINT;
 		::GetCursorPos(lpoint);                    // 得到鼠标位置
 		CMenu menu;
